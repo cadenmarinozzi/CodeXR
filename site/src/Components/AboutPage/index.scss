@@ -1,0 +1,34 @@
+@use '../../colors.scss' as *;
+
+.whitePage {
+    background: white;
+}
+
+.whitePage * {
+    background: white;
+}
+
+.row {
+    width: 100%;
+}
+
+.column {
+    width: 49%;
+    float: left;
+}
+
+.quad {
+    text-align: center;
+}
+
+h1 {
+    font-size: 17pt;
+    font-family: 'DejaVuBold';
+}
+
+h3 {
+    font-size: 12pt;
+    color: $mid-dark;
+
+    margin: 20px;
+}

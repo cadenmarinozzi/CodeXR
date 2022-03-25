@@ -1,0 +1,106 @@
+@use './colors.scss' as *;
+
+* {
+    margin: 0;
+    padding: 0;
+
+    background: $dark;
+    color: $mid;
+
+    font-family: 'DejaVu';
+    font-size: 15pt;
+
+    overflow-x: hidden;
+}
+
+.bold {
+    font-weight: 800;
+    font-style: italic;
+}
+
+.top-center {
+    padding-top: 140px;
+    text-align: center;
+}
+
+.page-center {
+    padding-top: 20px;
+    text-align: center;
+}
+
+.title {
+    font-family: 'DejaVuBold';
+    font-size: 75pt;
+}
+
+.subtitle {
+    font-size: 17pt;
+}
+
+.margin-center {
+    margin-left: 50%;
+    transform: translateX(-50%);
+}
+
+.code-block {
+    display: inline-block;
+
+    text-align: left;
+
+    background: $mid-dark;
+    border-radius: 3px;
+
+    padding: 25px;
+    margin-bottom: 10px;
+
+    border: none;
+}
+
+.code-block span, pre, right {
+    background: $invisible;
+}
+
+button {
+    color: #000;
+    border-radius: 6%;
+    border-style: solid;
+
+    border-color: $light-white;
+    background: $light-white;
+
+    padding: 5px;
+}
+
+.tab {
+    tab-size: 2;
+}
+
+.Icon {
+    background: $invisible;
+}
+
+.Powered-by {
+    font-size: 12pt;
+}
+
+.page2 {
+    padding-top: 50px;
+}
+
+.page2 h1 {
+    color: $light-white;
+    margin-top: 20px;
+    
+    margin-bottom: 15px;
+}
+
+.page3 {
+    padding-top: 60px;
+}
+
+.page3 h1 {
+    color: $dark;
+    
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
