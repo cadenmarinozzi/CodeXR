@@ -7,7 +7,7 @@ import React from 'react';
 class DownloadPage extends React.Component {
     render() {
         return (
-            <div className='page-center' ref={this.props.reference}>
+            <div className='page-center page4' ref={this.props.reference}>
                 <Gradient
                     gradients={gradients.main}          
                     property='text'        

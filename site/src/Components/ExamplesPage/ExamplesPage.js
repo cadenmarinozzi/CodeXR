@@ -51,7 +51,7 @@ class ExamplesPage extends React.Component {
                     gradients={gradients.main}
                     property='text'
                     element='h1'
-                    angle='-70deg'
+                    angle='30deg'
                     className=''
                 >
                 Natural Language Processing
