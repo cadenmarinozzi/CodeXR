@@ -2,10 +2,6 @@ import React from 'react';
 import './index.scss';
 
 class AboutPage extends React.Component {
-    constructor(props) {
-        super(props);
-    }
-
     render() {
         return (
             <div className='whitePage page3 quad'>

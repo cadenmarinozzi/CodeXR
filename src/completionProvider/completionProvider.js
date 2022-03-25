@@ -1,5 +1,5 @@
 const vscode = require('vscode');
-const debounce = require('../debounce');
+// const debounce = require('../debounce');
 
 /**
  * Registers an inline completion provider.

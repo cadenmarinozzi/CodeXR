@@ -105,7 +105,7 @@ function activate(context) {
     
     if (!config.get('realtime')) return;
 
-    async function provider(document, position) {
+    async function provider() {
         const results = { items: await getResults() };
 
         return results;
