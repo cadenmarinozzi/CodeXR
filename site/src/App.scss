@@ -37,11 +37,6 @@
     font-size: 17pt;
 }
 
-.margin-center {
-    margin-left: 50%;
-    transform: translateX(-50%);
-}
-
 .code-block {
     display: inline-block;
 
@@ -61,7 +56,8 @@
 }
 
 button {
-    color: #000;
+    color: black;
+
     border-radius: 6%;
     border-style: solid;
 
@@ -81,26 +77,4 @@ button {
 
 .Powered-by {
     font-size: 12pt;
-}
-
-.page2 {
-    padding-top: 50px;
-}
-
-.page2 h1 {
-    color: $light-white;
-    margin-top: 20px;
-    
-    margin-bottom: 15px;
-}
-
-.page3 {
-    padding-top: 60px;
-}
-
-.page3 h1 {
-    color: $dark;
-    
-    margin-top: 20px;
-    margin-bottom: 20px;
 }

@@ -48,7 +48,7 @@ class TopPage extends React.Component {
                     </button>
                 </div>
                 
-                <div className='page-center' style={{paddingTop: '5%'}}>
+                <div className='page-center' style={{paddingTop: '35px'}}>
                     {highlightCode('let square = (', `x) => x * x;\nconst a = 2;\nconsole.log(square(x));`)}
                 </div>
 

@@ -3,6 +3,7 @@ import { Gradient } from 'react-gradient';
 import gradients from '../../gradients';
 import '../../fonts.js';
 import highlightCode from '../../syntaxHighlighting';
+import './index.scss';
 
 class ExamplesPage extends React.Component {
     constructor(props) {
@@ -21,7 +22,7 @@ class ExamplesPage extends React.Component {
         const opacity = Math.min(this.state.currentScrollHeight / 100, 1);
 
         return (
-            <div style={{ opacity: opacity, marginBottom: '100px'}} className='page2 page-center'>
+            <div style={{ opacity: opacity }} className='page2 page-center'>
                 <Gradient
                     gradients={gradients.main}
                     property='text'

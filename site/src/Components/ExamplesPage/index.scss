@@ -1,0 +1,13 @@
+@use '../../colors.scss' as *;
+
+.page2 {
+    margin-bottom: 100px;
+    padding-top: 50px;
+}
+
+.page2 h1 {
+    color: $light-white;
+    margin-top: 20px;
+    
+    margin-bottom: 15px;
+}
