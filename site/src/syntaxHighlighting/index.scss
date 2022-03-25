@@ -1,0 +1,23 @@
+@use '../colors.scss' as *;
+
+.tab {
+    tab-size: 2;
+}
+
+.code-block {
+    display: inline-block;
+
+    text-align: left;
+
+    background: $mid-dark;
+    border-radius: 3px;
+
+    padding: 25px;
+    margin-bottom: 10px;
+
+    border: none;
+}
+
+.code-block span, pre, right {
+    background: $invisible;
+}

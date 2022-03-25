@@ -7,6 +7,7 @@ import '../../fonts.js';
 import OpenAILogo from '../OpenAILogo';
 import highlightCode from '../../syntaxHighlighting';
 import Button from '../Button';
+import './index.scss';
 
 class TopPage extends React.Component {
     constructor(props) {

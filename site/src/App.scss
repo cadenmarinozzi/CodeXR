@@ -28,41 +28,6 @@
     text-align: center;
 }
 
-.title {
-    font-family: 'DejaVuBold';
-    font-size: 75pt;
-}
-
-.subtitle {
-    font-size: 17pt;
-}
-
-.code-block {
-    display: inline-block;
-
-    text-align: left;
-
-    background: $mid-dark;
-    border-radius: 3px;
-
-    padding: 25px;
-    margin-bottom: 10px;
-
-    border: none;
-}
-
-.code-block span, pre, right {
-    background: $invisible;
-}
-
-.tab {
-    tab-size: 2;
-}
-
 .Icon {
     background: $invisible;
-}
-
-.Powered-by {
-    font-size: 12pt;
 }
