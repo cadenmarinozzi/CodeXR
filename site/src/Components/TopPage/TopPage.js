@@ -1,12 +1,12 @@
 import React from 'react';
 import { Gradient } from 'react-gradient';
 import gradients from '../../gradients';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleDown } from '@fortawesome/free-solid-svg-icons';
 import '../OpenAILogo';
 import '../../fonts.js';
 import OpenAILogo from '../OpenAILogo';
 import highlightCode from '../../syntaxHighlighting';
+import Button from '../Button';
 
 class TopPage extends React.Component {
     constructor(props) {
@@ -41,11 +41,7 @@ class TopPage extends React.Component {
                 </div>
 
                 <div className='page-center'>
-                    <button>
-                        Download
-                        <br />
-                        <FontAwesomeIcon className='Icon' icon={faAngleDown} />   
-                    </button>
+                    <Button onClick={this.props.scroller} icon={faAngleDown}>Download</Button>
                 </div>
                 
                 <div className='page-center' style={{paddingTop: '35px'}}>
