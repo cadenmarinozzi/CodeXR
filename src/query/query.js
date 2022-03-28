@@ -126,6 +126,7 @@ async function query(language, context, query, hasPrefix, userId) {
     query = `${language} ${query}`;
 
     if (context) context = trimContext(context, query);
+
     const response = await queryOpenAI(context, query, userId);
     // Query OpenAI
 

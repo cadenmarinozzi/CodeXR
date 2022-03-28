@@ -57,7 +57,8 @@
     "inlineCompletions"
   ],
   "scripts": {
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "mocha --reporter list"
   },
   "devDependencies": {
     "@types/glob": "^7.2.0",
