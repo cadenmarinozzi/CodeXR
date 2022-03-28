@@ -1,9 +1,10 @@
 const vscode = require('vscode');
-const query = require('./query/query');
+const query = require('./query');
 const debounce = require('./debounce');
-const completionProvider = require('./completionProvider/completionProvider');
-const { encode, decode } = require('gpt-3-encoder');
-
+const completionProvider = require('./completionProvider');
+const { v4: uuid4 } = require('uuid');
+const web = require('./web');
+  
 /**
  * @param {Document} document 
  * @param {Position} position 
@@ -45,26 +46,23 @@ function generateResults(completions, position) {
 }
 
 /**
- * This function trims the context so that it is the specified maximum number of tokens long.
- * @param {string} context - The context to be trimmed.
- * @param {string} prompt - The prompt to be used as a reference point for trimming.
- * @returns {string} - The trimmed context.
- */
-function trimContext(context, prompt) {
-    const config = vscode.workspace.getConfiguration('codexr');
-    const maxTokens = config.get('max_tokens');
-    const encoded = encode(context);
-
-    return decode(encoded.slice(0, maxTokens - encode(prompt).length));
-}
-
-/**
  * @async 
  * @function getResults
  * @returns {Promise<vscode.CompletionList>}
  * @description Asynchronously returns a list of code completion results for the current active text editor
  */
-async function getResults() {
+async function getResults(context) {
+    let userId = context.globalState.get('userId');
+
+    if (!userId) userId = uuid4();
+    
+    if (!await web.isUser(userId)) {
+        context.globalState.update('userId', userId);
+        web.beginUser(userId);
+    }
+
+    web.updateUserData(userId, { isInsider: completionProvider.isInsider });
+
     const editor = vscode.window.activeTextEditor;
     if (!editor) return;
     
@@ -76,11 +74,15 @@ async function getResults() {
     let [ queryText, hasPrefix ] = removePrefix(lineText);
     queryText.trim();
 
-    const previousRange = new vscode.Range(document.lineAt(0).range.start, document.lineAt(position.line).range.end);
-    const context = trimContext(document.getText(previousRange), queryText);
+    let contextCode;
+
+    if (position.line > 0) {
+        const previousRange = new vscode.Range(document.lineAt(0).range.start, document.lineAt(position.line - 1).range.end);
+        contextCode = document.getText(previousRange);
+    }
 
     const completions = await debounce(async() => 
-        await query(document.languageId, context, queryText, hasPrefix), 1000)(); // debounce to throttle the completions
+        await query(document.languageId, contextCode, queryText, hasPrefix, userId), 1000)(); // debounce to throttle the completions
 
     return generateResults(completions, position);
 }
@@ -93,11 +95,14 @@ function activate(context) {
 
         const position = editor.selection.active;
 
-        const results = await getResults();
+        const results = await getResults(context);
         if (!results || results.length < 1) return;
 
+        const code = results[0].insertText;
+        if (code == '') return;
+
         editor.edit(editBuilder => {
-            editBuilder.insert(position, results[0].insertText);
+            editBuilder.insert(position, code);
         });
     });
 
@@ -105,14 +110,8 @@ function activate(context) {
     
     if (!config.get('realtime')) return;
 
-    async function provider() {
-        const results = { items: await getResults() };
-
-        return results;
-    }
-
     completionProvider.registerInlineCompletionItemProvider({ pattern: '**'}, {
-        provideInlineCompletionItems: provider
+        provideInlineCompletionItems: async() => { items: await getResults(context) }
     });
 }
 
