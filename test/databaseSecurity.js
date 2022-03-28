@@ -1,5 +1,5 @@
 const { initializeApp, setLogLevel } = require('firebase/app');
-const { getDatabase, ref, set, child, get } = require('firebase/database');
+const { getDatabase, ref, set } = require('firebase/database');
 const assert = require('assert');
 
 setLogLevel('silent');
