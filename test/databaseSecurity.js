@@ -1,6 +1,8 @@
-const { initializeApp } = require('firebase/app');
+const { initializeApp, setLogLevel } = require('firebase/app');
 const { getDatabase, ref, set, child, get } = require('firebase/database');
 const assert = require('assert');
+
+setLogLevel('silent');
 
 const firebaseConfig = {
     apiKey: 'AIzaSyB2njt8fOxzBi1COEBH4ahVnUb_rd9_dU8',
@@ -17,115 +19,128 @@ const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
 describe('The users directory in the database', () => {
-    it('should revoke access to write an empty json object to it', () => {
-        set(ref(database, 'users/'), {})
+    it('should revoke access to write an empty object to it', async() => {
+        let errCode;
+
+        await set(ref(database, 'users/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'), {})
             .catch(err => {
-                assert.equal(err.code, 'PERMISSION_DENIED');
+                errCode = err.code;
             });
+
+        assert.equal(errCode, 'PERMISSION_DENIED');
     });
 
-    it('should revoke access to write an empty json object to its usage values', () => {
-        set(ref(database, 'users/usage'), {})
+    it('should revoke access to write a non valid index to it', async() => {
+        let errCode;
+
+        await set(ref(database, 'users/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/nonValidIndex'), true)
             .catch(err => {
-                assert.equal(err.code, 'PERMISSION_DENIED');
+                errCode = err.code;
             });
+
+        assert.equal(errCode, 'PERMISSION_DENIED');
     });
 
-    it('should revoke access to write an empty json object to its isInsider values', () => {
-        set(ref(database, 'users/isInsider'), {})
+    it('should revoke access to write a non boolean value to its isInsider value', async() => {
+        let errCode;
+
+        await set(ref(database, 'users/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/isInsider'), 'nonBoolean')
             .catch(err => {
-                assert.equal(err.code, 'PERMISSION_DENIED');
+                errCode = err.code;
             });
+
+        assert.equal(errCode, 'PERMISSION_DENIED');
     });
 
-    it('should revoke access to write an empty json object to its tokens values', () => {
-        set(ref(database, 'users/tokens'), {})
+    it('should revoke access to write a non number value to its tokens value', async() => {
+        let errCode;
+
+        await set(ref(database, 'users/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/tokens'), 'nonNumber')
             .catch(err => {
-                assert.equal(err.code, 'PERMISSION_DENIED');
+                errCode = err.code;
             });
+
+        assert.equal(errCode, 'PERMISSION_DENIED');
     });
 
-    it('should revoke access to write an empty json object to its userId values', () => {
-        set(ref(database, 'users/userId'), {})
+    it('should revoke access to write a non number value to its usage value', async() => {
+        let errCode;
+
+        await set(ref(database, 'users/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/usage'), 'nonNumber')
             .catch(err => {
-                assert.equal(err.code, 'PERMISSION_DENIED');
+                errCode = err.code;
             });
+
+        assert.equal(errCode, 'PERMISSION_DENIED');
     });
 
-    it('should revoke access to write a non number value to its usage values', () => {
-        set(ref(database, 'users/usage'), 'This is not a number')
+    it('should revoke access to write a negative value to its usage value', async() => {
+        let errCode;
+
+        await set(ref(database, 'users/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/usage'), -10)
             .catch(err => {
-                assert.equal(err.code, 'PERMISSION_DENIED');
+                errCode = err.code;
             });
+
+        assert.equal(errCode, 'PERMISSION_DENIED');
     });
 
-    it('should revoke access to write a non number value to its tokens values', () => {
-        set(ref(database, 'users/tokens'), 'This is not a number')
-            .catch(err => {
-                assert.equal(err.code, 'PERMISSION_DENIED');
-            });
-    });
+    it('should revoke access to write a negative value to its tokens value', async() => {
+        let errCode;
 
-    it('should revoke access to write a non boolean value to its isInsider values', () => {
-        set(ref(database, 'users/tokens'), 'This is not a boolean')
+        await set(ref(database, 'users/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/tokens'), -10)
             .catch(err => {
-                assert.equal(err.code, 'PERMISSION_DENIED');
+                errCode = err.code;
             });
-    });
 
-    it('should revoke access to write a non string value to its userId values', () => {
-        set(ref(database, 'users/tokens'), 100)
-            .catch(err => {
-                assert.equal(err.code, 'PERMISSION_DENIED');
-            });
+        assert.equal(errCode, 'PERMISSION_DENIED');
     });
     
-    it('should revoke access to write a negative value to its usage values', () => {
-        set(ref(database, 'users/usage'), -10)
+    it('should allow access to write a valid object to it', async() => {
+        let errCode;
+
+        await set(ref(database, 'users/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'), {
+            "usage": 0,
+            "tokens": 0,
+            "isInsider": false
+        })
             .catch(err => {
-                assert.equal(err.code, 'PERMISSION_DENIED');
+                errCode = err.code;
             });
+
+        assert.notEqual(errCode, 'PERMISSION_DENIED');
     });
 
-    it('should revoke access to write a negative value to its tokens values', () => {
-        set(ref(database, 'users/usage'), -10)
+    it('should allow access to write a valid number to its tokens value', async() => {
+        let errCode;
+
+        await set(ref(database, 'users/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/tokens'), 10)
             .catch(err => {
-                assert.equal(err.code, 'PERMISSION_DENIED');
+                errCode = err.code;
             });
+
+        assert.notEqual(errCode, 'PERMISSION_DENIED');
     });
 
-    it('should revoke access to write a string with a length less than or greater than 36 to its userId values', () => {
-        set(ref(database, 'users/usage'), 'This is not a string with a length of 36')
+    it('should allow access to write a valid number to its usage value', async() => {
+        let errCode;
+
+        await set(ref(database, 'users/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/usage'), 10)
             .catch(err => {
-                assert.equal(err.code, 'PERMISSION_DENIED');
+                errCode = err.code;
             });
+
+        assert.notEqual(errCode, 'PERMISSION_DENIED');
     });
 
-    it('should allow the client to read its usage values', () => {
-        get(child(ref(database), 'users/usage'))
-            .catch(err => {
-                assert.notEqual(err.code, 'PERMISSION_DENIED');
-            });
-    });
+    it('should allow access to write a valid boolean to its isInsider value', async() => {
+        let errCode;
 
-    it('should allow the client to read its isInsider values', () => {
-        get(child(ref(database), 'users/isInsider'))
+        await set(ref(database, 'users/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/isInsider'), true)
             .catch(err => {
-                assert.notEqual(err.code, 'PERMISSION_DENIED');
+                errCode = err.code;
             });
-    });
 
-    it('should allow the client to read its tokens values', () => {
-        get(child(ref(database), 'users/tokens'))
-            .catch(err => {
-                assert.notEqual(err.code, 'PERMISSION_DENIED');
-            });
-    });
-
-    it('should allow the client to read its userId values', () => {
-        get(child(ref(database), 'users/userId'))
-            .catch(err => {
-                assert.notEqual(err.code, 'PERMISSION_DENIED');
-            });
+        assert.notEqual(errCode, 'PERMISSION_DENIED');
     });
 });
