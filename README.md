@@ -1,7 +1,13 @@
 ## CodeXR
 The future of programming.
 
-## Terms
+## Best Practices
+To get the best out of CodeXR, you should:
+* Split large functions into many, smaller functions.
+* Use prompts that are self explanatory.
+* Use comments to explain your code.
+
+## Terms Of Use
 CodeXR uses OpenAIs Codex AI model. This means the following terms must be followed AT ALL TIMES.
 * CodeXR MUST NOT be used for reasons other than code completion. This means conversing with the AI and manipulating the AI are prohibited.
 * CodeXR MUST NOT be used to generate code that may be offensive to anyone.
