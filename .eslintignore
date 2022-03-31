@@ -1,4 +1,6 @@
 **node_modules
+**package-lock.json
 **build
-**.nyc_output
 **coverage
+**.nyc_output
+**.vsix
