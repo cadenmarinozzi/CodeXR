@@ -26,12 +26,6 @@ function writeUserData(userId, isInsider=false, usage=0, tokens=0) {
     });
 }
 
-async function readUserData(userId, key) {
-    const userData = await get(child(ref(database), `users/${userId}/${key}`));
-
-    return userData.val();
-}
-
 function updateUserData(userId, data) { 
     let updates = {};
 
@@ -40,15 +34,6 @@ function updateUserData(userId, data) {
     }
 
     update(ref(database), updates);
-}
-
-async function incrementUserData(userId, data) { // Decrement is just negative usage
-    for (const key of Object.keys(data)) {
-        const currentValue = await readUserData(userId, key);
-        data[key] = currentValue + data[key];
-    }
-
-    updateUserData(userId, data);
 }
 
 async function isUser(userId) {
@@ -61,4 +46,4 @@ function beginUser(userId) {
     writeUserData(userId, false, 0, 0);
 }
 
-module.exports = { beginUser, incrementUserData, updateUserData, isUser };
+module.exports = { beginUser, updateUserData, isUser };
