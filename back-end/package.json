@@ -1,0 +1,21 @@
+{
+  "name": "back-end",
+  "version": "1.0.0",
+  "description": "Back-end codee for CodeXR",
+  "main": "src/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nekumelon/CodeXR"
+  },
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "author": "nekumelon",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.3",
+    "firebase": "^9.6.10",
+    "gpt-3-encoder": "^1.1.3",
+    "openai": "^2.0.5"
+  }
+}

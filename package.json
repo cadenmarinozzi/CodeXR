@@ -3,6 +3,10 @@
   "displayName": "Codexr",
   "description": "Code completions in a breeze",
   "version": "0.0.1",
+  "repository": {
+    "url": "https://github.com/nekumelon/CodeXR",
+    "type": "git"
+  },
   "author": {
     "email": "nekumelon@gmail.com",
     "name": "nekumelon",
