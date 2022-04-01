@@ -22,9 +22,9 @@ app.post('/query', async(req, res) => {
     const response = await query(body);    
     res.status(200).json(response.data.choices);
 });
-
-const port = 8080;
   
+let port = process.env.PORT || 5000;
+
 app.listen(port, () => {
     console.log(`Back-end running on port ${port}`);
 });

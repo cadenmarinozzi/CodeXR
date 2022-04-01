@@ -60,7 +60,7 @@ async function queryOpenAI(context, query, userId) {
     ${context ? '/*Context:\n' + context : ''}
     /* Command: ${query} */\n`;
 
-    return await httpPost('http://localhost:8080/query', {
+    return await httpPost('https://codexr.herokuapp.com/query', {
         prompt: prompt,
         stop: [ '/* Command', '/* Context' ],
         userId: userId,

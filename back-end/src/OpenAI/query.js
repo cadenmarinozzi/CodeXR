@@ -3,7 +3,9 @@ const Filter = require('./filter');
 const web = require('../web');
 const { encode } = require('gpt-3-encoder');
 
-let configuration = new Configuration({ apiKey: process.env.OPENAI_API_KEY });
+const apiKey = process.env.OPENAI_API_KEY;
+console.log(`OPENAI_API_KEY: ${apiKey}`);
+let configuration = new Configuration({ apiKey: apiKey });
 let openai = new OpenAIApi(configuration);
 const filter = new Filter(openai);
 const clamp = (num, min, max) => Math.min(Math.max(num, min), max); // From some stack overflow article from a while ago
