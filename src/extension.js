@@ -53,8 +53,10 @@ function generateResults(completions, position) {
  */
 async function getResults(context) {
     let userId = context.globalState.get('userId');
+    // If there is no userId, create one
 
     if (!userId) userId = uuid4();
+    // If the userId is not in the database, add it
     
     if (!await web.isUser(userId)) {
         context.globalState.update('userId', userId);
@@ -93,9 +95,12 @@ function activate(context) {
         const editor = vscode.window.activeTextEditor;
         if (!editor) return;
 
+        // Get the first result from the query
         const position = editor.selection.active;
+        // If there is no code, return
 
         const results = await getResults(context);
+        // Insert the code into the editor
         if (!results || results.length < 1) return;
 
         const code = results[0].insertText;

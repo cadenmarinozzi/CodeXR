@@ -105,12 +105,14 @@ async function queryOpenAI(context, query, userId) {
  * @return {string} The input string with the query removed.
  */
 function removeQuery(input, query) {
+    if (input.includes(query)) return input.replace(query, '');
+    
     // Find the index of the query in the input
     const index = input.toLowerCase().indexOf(query.toLowerCase());
     // If the query is not in the input, return the input
     if (index < 0) return input;
     // Return the input without the query
-    return input.substring(index + query.length);
+    return input.substring(0, index + query.length);
 }
 
 /**
@@ -123,11 +125,9 @@ function removeQuery(input, query) {
  * @returns {Promise<Array<string>>} - an array of responses to the user's query
  */
 async function query(language, context, query, hasPrefix, userId) {
-    query = `${language} ${query}`;
-
     if (context) context = trimContext(context, query);
 
-    const response = await queryOpenAI(context, query, userId);
+    const response = await queryOpenAI(context, `${language} ${query}`, userId);
     // Query OpenAI
 
     // If there are no choices, return an empty array
