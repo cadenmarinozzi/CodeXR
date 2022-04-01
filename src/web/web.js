@@ -15,35 +15,33 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
-function writeUserData(userId, isInsider=false, usage=0, tokens=0) {
-    usage = Math.abs(usage); // usage cannot be negative
-    tokens = Math.abs(tokens); // tokens cannot be negative
-
-    set(ref(database, 'users/' + userId), {
-        isInsider: isInsider,
-        usage: usage,
-        tokens: tokens
-    });
+function writeUserData(user, data) {
+    set(ref(database, 'users/' + user), data);
 }
 
-function updateUserData(userId, data) { 
+function updateUserData(user, data) { 
     let updates = {};
 
     for (const key of Object.keys(data)) {
-        updates[`users/${userId}/${key}`] = data[key];
+        updates[`users/${user}/${key}`] = data[key];
     }
 
     update(ref(database), updates);
 }
 
-async function isUser(userId) {
-    const userData = await get(child(ref(database), `users/${userId}`));
+async function isUser(user) {
+    const userData = await get(child(ref(database), `users/${user}`));
 
     return userData.exists();
 }
 
-function beginUser(userId) {
-    writeUserData(userId, false, 0, 0);
+function beginUser(user) {
+    writeUserData(user, {
+        isInsider: false,
+        usage: 0,
+        tokens: 0,
+        blacklisted: false
+    });
 }
 
 module.exports = { beginUser, updateUserData, isUser };

@@ -15,35 +15,41 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
-async function readUserData(userId, key) {
-    const userData = await get(child(ref(database), `users/${userId}/${key}`));
+async function readUserData(user, key) {
+    const userData = await get(child(ref(database), `users/${user}/${key}`));
 
     return userData.val();
 }
 
-function updateUserData(userId, data) { 
+function updateUserData(user, data) { 
     let updates = {};
 
     for (const key of Object.keys(data)) {
-        updates[`users/${userId}/${key}`] = data[key];
+        updates[`users/${user}/${key}`] = data[key];
     }
 
     update(ref(database), updates);
 }
 
-async function incrementUserData(userId, data) { // Decrement is just negative usage
+async function incrementUserData(user, data) { // Decrement is just negative usage
     for (const key of Object.keys(data)) {
-        const currentValue = await readUserData(userId, key);
+        const currentValue = await readUserData(user, key);
         data[key] = currentValue + data[key];
     }
 
-    updateUserData(userId, data);
+    updateUserData(user, data);
 }
 
-async function isUser(userId) {
-    const userData = await get(child(ref(database), `users/${userId}`));
+async function userBlacklisted(user) {
+    const isBlacklisted = await get(child(ref(database), `users/${user}/blacklisted`));
+
+    return isBlacklisted.val();
+}
+
+async function isUser(user) {
+    const userData = await get(child(ref(database), `users/${user}`));
 
     return userData.exists();
 }
 
-module.exports = { incrementUserData, updateUserData, isUser };
+module.exports = { incrementUserData, updateUserData, isUser, userBlacklisted };

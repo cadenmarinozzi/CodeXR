@@ -10,7 +10,7 @@ async function httpPost(url, data) {
     return response;
 }
 
-async function queryOpenAI(context, query, userId) {
+async function queryOpenAI(context, query, user) {
     const maxTokens = config.get('max_tokens');
     const prompt = `<|endoftext|>
     /* If the command asks you to generate code, generate the code requested. If it is a slice of code that needs completing, complete it. */
@@ -63,7 +63,7 @@ async function queryOpenAI(context, query, userId) {
     return await httpPost('https://codexr.herokuapp.com/query', {
         prompt: prompt,
         stop: [ '/* Command', '/* Context' ],
-        userId: userId,
+        user: user,
         maxTokens: maxTokens
     });
 }
@@ -107,10 +107,10 @@ function removeQuery(input, query) {
  * @param {boolean} hasPrefix - whether or not the user's query has a prefix
  * @returns {Promise<Array<string>>} - an array of responses to the user's query
  */
-async function query(language, context, query, hasPrefix, userId) {
+async function query(language, context, query, hasPrefix, user) {
     if (context) context = trimContext(context, query);
 
-    const response = await queryOpenAI(context, `${language} ${query}`, userId);
+    const response = await queryOpenAI(context, `${language} ${query}`, user);
     // Query OpenAI
 
     // If there are no choices, return an empty array

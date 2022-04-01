@@ -4,7 +4,6 @@ const web = require('../web');
 const { encode } = require('gpt-3-encoder');
 
 const apiKey = process.env.OPENAI_API_KEY;
-console.log(`OPENAI_API_KEY: ${apiKey}`);
 let configuration = new Configuration({ apiKey: apiKey });
 let openai = new OpenAIApi(configuration);
 const filter = new Filter(openai);
@@ -15,7 +14,7 @@ const MAX_TOKENS = 2048;
 async function queryOpenAI(body) {
     const nTokens = encode(body.prompt).length;
 
-    await web.incrementUserData(body.userId, { 
+    await web.incrementUserData(body.user, { 
         tokens: nTokens,
         usage: 1
     }); 
@@ -25,14 +24,14 @@ async function queryOpenAI(body) {
         temperature: 0,
 		max_tokens: clamp(MAX_TOKENS - nTokens, 1, body.maxTokens),
         stop: body.stop,
-        user: body.userId
+        user: body.user
     });
 }
 
 async function query(body) {
     const response = await queryOpenAI(body);
     const text = response.data.choices[0].text;
-    await web.incrementUserData(body.userId, { tokens: encode(text).length }); // Increment the tokens value the length of the text
+    await web.incrementUserData(body.user, { tokens: encode(text).length }); // Increment the tokens value the length of the text
 
     if (await filter.check(text)) return response;
 

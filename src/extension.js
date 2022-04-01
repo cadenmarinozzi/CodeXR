@@ -1,6 +1,5 @@
 const vscode = require('vscode');
 const query = require('./query');
-const debounce = require('./debounce');
 const completionProvider = require('./completionProvider');
 const { v4: uuid4 } = require('uuid');
 const web = require('./web');
@@ -52,18 +51,18 @@ function generateResults(completions, position) {
  * @description Asynchronously returns a list of code completion results for the current active text editor
  */
 async function getResults(context) {
-    let userId = context.globalState.get('userId');
+    let user = context.globalState.get('user');
     // If there is no userId, create one
 
-    if (!userId) userId = uuid4();
+    if (!user) user = uuid4();
     // If the userId is not in the database, add it
     
-    if (!await web.isUser(userId)) {
-        context.globalState.update('userId', userId);
-        web.beginUser(userId);
+    if (!await web.isUser(user)) {
+        context.globalState.update('userId', user);
+        web.beginUser(user);
     }
 
-    web.updateUserData(userId, { isInsider: completionProvider.isInsider });
+    web.updateUserData(user, { isInsider: completionProvider.isInsider });
 
     const editor = vscode.window.activeTextEditor;
     if (!editor) return;
@@ -83,8 +82,7 @@ async function getResults(context) {
         contextCode = document.getText(previousRange);
     }
 
-    const completions = await debounce(async() => 
-        await query(document.languageId, contextCode, queryText, hasPrefix, userId), 200)(); // debounce to throttle the completions
+    const completions = await query(document.languageId, contextCode, queryText, hasPrefix, user);
 
     return generateResults(completions, position);
 }
