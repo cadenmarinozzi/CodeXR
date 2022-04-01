@@ -84,7 +84,7 @@ async function getResults(context) {
     }
 
     const completions = await debounce(async() => 
-        await query(document.languageId, contextCode, queryText, hasPrefix, userId), 1000)(); // debounce to throttle the completions
+        await query(document.languageId, contextCode, queryText, hasPrefix, userId), 200)(); // debounce to throttle the completions
 
     return generateResults(completions, position);
 }

@@ -1,9 +1,10 @@
 const express = require('express');
 const app = express();
 const query = require('./OpenAI/query');
+const debounce = require('./debounce');
 
 app.use(express.json());
-  
+
 app.post('/query', async(req, res) => {
     const body = req.body;
 
@@ -19,7 +20,9 @@ app.post('/query', async(req, res) => {
         return;
     };
     
-    const response = await query(body);    
+    const response = await debounce(async() =>
+        await query(body), 50)();
+
     res.status(200).json(response.data.choices);
 });
   
