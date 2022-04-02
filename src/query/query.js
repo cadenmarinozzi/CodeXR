@@ -12,53 +12,7 @@ async function httpPost(url, data) {
 
 async function queryOpenAI(context, query, user) {
     const maxTokens = config.get('max_tokens');
-    const prompt = `<|endoftext|>
-    /* If the command asks you to generate code, generate the code requested. If it is a slice of code that needs completing, complete it. */
-    /* If context code is given, use it as context for the command. */
-    
-    /* Context:
-    import random
-    /* Command: def generateRandom( */
-    n, min, max):
-        generated = [];
-    
-        for i in range(n):
-            generated.append(random.randint(min, max));
-    
-        return generated;
-    /* Command: Implement a fizzbuzz function */
-    function fizzBuzz(number) {
-        let out = '';
-    
-        if (number % 3 == 0) out += 'fizz';
-        if (number % 5 == 0) out += 'buzz';
-        if (out == '') out = number;
-    
-        console.log(out);
-    }
-    /* Context:
-    function square(x) {
-        return x * x;
-    }
-    const input = 10;
-    /* Command: const squared = squa */
-    re(input);
-    /* Command: function binarySe */
-    earch(array, target) {
-        let low = 0;
-        let high = array.length - 1;
-    
-        while (low <= high) {
-            const middle = Math.floor(low + (high - low) / 2);
-            const value = array[middle];
-    
-            if (value == target) return middle;
-            if (value > target) high = middle - 1;
-            else low = middle + 1;
-        }
-    }
-    ${context ? '/*Context:\n' + context : ''}
-    /* Command: ${query} */\n`;
+    const prompt = `<|endoftext|>\n/* If the command asks you to generate code, generate the code requested. If it is a slice of code that needs completing, complete it. */\n/* If context code is given, use it as context for the command. */\n\n/* Context:\nimport random\n/* Command: def generateRandom( */\nn, min, max):\ngenerated = [];\n\nfor i in range(n):\t\ngenerated.append(random.randint(min, max));\n\nreturn generated;\n/* Command: Implement a fizzbuzz function */\nfunction fizzBuzz(number) {\n\tlet out = '';\n\n\tif (number % 3 == 0) out += 'fizz';\n\tif (number % 5 == 0) out += 'buzz';\n\tif (out == '') out = number;\n\n\tconsole.log(out);\n}\n/* Context:\nfunction square(x) {\n\treturn x * x;\n}\nconst input = 10;\n/* Command: const squared = squa */\nre(input);\n/* Command: function binarySe */\nearch(array, target) {\n\tlet low = 0;\n\tlet high = array.length - 1;\n\n\twhile (low <= high) {\n\t\tconst middle = Math.floor(low + (high - low) / 2);\n\t\tconst value = array[middle];\n\n\t\tif (value == target) return middle;\n\t\tif (value > target) high = middle - 1;\n\t\telse low = middle + 1;\n\t}\n}\n${context ? '/*Context:\n' + context : ''}\n/* Command: ${query} */\n`;
 
     return await httpPost('https://codexr.herokuapp.com/query', {
         prompt: prompt,

@@ -1,7 +1,7 @@
 {
   "name": "back-end",
   "version": "1.0.0",
-  "description": "Back-end codee for CodeXR",
+  "description": "Back-end code for CodeXR",
   "main": "src/index.js",
   "repository": {
     "type": "git",

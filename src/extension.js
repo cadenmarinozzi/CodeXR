@@ -1,6 +1,5 @@
 const vscode = require('vscode');
 const query = require('./query');
-const completionProvider = require('./completionProvider');
 const { v4: uuid4 } = require('uuid');
 const web = require('./web');
   
@@ -28,29 +27,12 @@ function removePrefix(input) {
 }
 
 /**
- * Generate an array of InlineCompletionItems from an array of strings
- * @param {string[]} completions - an array of strings to use to generate InlineCompletionItems
- * @param {vscode.Position} position - the position at which to create the InlineCompletionItems
- * @returns {vscode.InlineCompletionItem[]} an array of InlineCompletionItems generated from the strings in the completions array
- */
-function generateResults(completions, position) {
-    // Map the completions to InlineCompletionItems
-    return completions.map(text => { 
-        // Create a range for the completion
-        const range = new vscode.Range(position.translate(0, text.length), position);
-        // Return the completion
-
-        return new vscode.InlineCompletionItem(text, range);
-    });
-}
-
-/**
  * @async 
- * @function getResults
+ * @function getCompletions
  * @returns {Promise<vscode.CompletionList>}
- * @description Asynchronously returns a list of code completion results for the current active text editor
+ * @description Asynchronously returns a list of code completions for the current active text editor
  */
-async function getResults(context) {
+async function getCompletions(context) {
     let user = context.globalState.get('user');
     // If there is no userId, create one
 
@@ -58,11 +40,9 @@ async function getResults(context) {
     // If the userId is not in the database, add it
     
     if (!await web.isUser(user)) {
-        context.globalState.update('userId', user);
+        context.globalState.update('user', user);
         web.beginUser(user);
     }
-
-    web.updateUserData(user, { isInsider: completionProvider.isInsider });
 
     const editor = vscode.window.activeTextEditor;
     if (!editor) return;
@@ -82,9 +62,10 @@ async function getResults(context) {
         contextCode = document.getText(previousRange);
     }
 
+    vscode.window.setStatusBarMessage('Generating a completion...', 4000);
     const completions = await query(document.languageId, contextCode, queryText, hasPrefix, user);
 
-    return generateResults(completions, position);
+    return completions;
 }
 
 function activate(context) {
@@ -97,25 +78,22 @@ function activate(context) {
         const position = editor.selection.active;
         // If there is no code, return
 
-        const results = await getResults(context);
+        const completions = await getCompletions(context);
         // Insert the code into the editor
-        if (!results || results.length < 1) return;
+        if (!completions || completions.length < 1) return;
 
-        const code = results[0].insertText;
-        if (code == '') return;
-
+        const code = completions[0];
+        
         editor.edit(editBuilder => {
             editBuilder.insert(position, code);
         });
     });
 
     context.subscriptions.push(queryDisposable);
-    
-    if (!config.get('realtime')) return;
 
-    completionProvider.registerInlineCompletionItemProvider({ pattern: '**'}, {
-        provideInlineCompletionItems: async() => { items: await getResults(context) }
-    });
+    if (!config.get('realtime')) return;
+    
+    // TODO
 }
 
 module.exports = { activate, deactivate: () => {} };
