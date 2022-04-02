@@ -2,4 +2,4 @@
 **/.firebase
 **/back-end
 **/.github
-**/node_modules
+**/build
