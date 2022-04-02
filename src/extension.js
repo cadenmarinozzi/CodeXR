@@ -68,6 +68,16 @@ async function getCompletions(context) {
     return completions;
 }
 
+function createStatusBarItem(command, text) {
+    let statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 0);
+    statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
+    statusBarItem.text = text;
+    statusBarItem.command = command;
+    statusBarItem.show();
+
+    return statusBarItem;
+}
+
 function activate(context) {
     const config = vscode.workspace.getConfiguration('codexr');
     const queryDisposable = vscode.commands.registerCommand('codexr.query', async() => {
@@ -90,6 +100,7 @@ function activate(context) {
     });
 
     context.subscriptions.push(queryDisposable);
+    context.subscriptions.push(createStatusBarItem('codexr.query', '$(variable)', 'CodeXR'));
 
     if (!config.get('realtime')) return;
     
