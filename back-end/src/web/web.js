@@ -43,7 +43,7 @@ async function incrementUserData(user, data) { // Decrement is just negative usa
 async function userBlacklisted(user) {
     const isBlacklisted = await get(child(ref(database), `users/${user}/blacklisted`));
 
-    return isBlacklisted.val();
+    return isBlacklisted.exists() && isBlacklisted.val();
 }
 
 async function isUser(user) {

@@ -17,37 +17,41 @@ function requestReset() {
 requestReset();
 
 app.post('/query', async(req, res) => {
-    if (requests >= requestsPerMinute) {
-        res.status(400).send('Too many requests');
+    try {
+        if (requests >= requestsPerMinute) {
+            res.status(400).send('Too many requests');
 
-        return;
-    }
+            return;
+        }
 
-    const body = req.body;
+        const body = req.body;
 
-    if (
-        !body || 
-        !body.prompt || 
-        !body.user || 
-        !body.maxTokens || 
-        !body.stop
-    ) {
-        res.status(400).send('Bad request');
+        if (
+            !body || 
+            !body.prompt || 
+            !body.user || 
+            !body.maxTokens || 
+            !body.stop
+        ) {
+            res.status(400).send('Bad request');
 
-        return;
-    };
+            return;
+        };
 
-    if (web.userBlacklisted(body.user)) {
-        res.status(403).send('User blacklisted');
+        if (await web.userBlacklisted(body.user)) {
+            res.status(403).send('User blacklisted');
+            
+            return;
+        }
         
-        return;
-    }
-    
-    requests++;
-    const response = await debounce(async() =>
-        await query(body), 200)();
+        requests++;
+        const response = await debounce(async() =>
+            await query(body), 200)();
 
-    res.status(200).json(response.data.choices);
+        res.status(200).json(response.data.choices);
+    } catch (err) {
+        res.status(400).send(`Server error ${err}`);
+    }
 });
   
 let port = process.env.PORT || 5000;
