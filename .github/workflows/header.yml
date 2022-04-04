@@ -15,10 +15,7 @@ jobs:
       - name: make-header
         run: |
           python ./scripts/header.py
-          
-      - name: Modifiy the specific files using action
-        uses: action-owner/action-repo@ref
-        
+
       - name: Commit and push changes
         run: |
           git config --global user.name nekumelon
