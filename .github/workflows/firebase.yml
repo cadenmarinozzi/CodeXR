@@ -2,7 +2,7 @@ name: firebase-deploy
 on: 
   push:
     paths:
-      - 'site/'
+      - site/**
       
 env:
   PROJECT_PATH: site/
