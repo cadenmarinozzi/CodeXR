@@ -4,11 +4,31 @@ jobs:
   add-header:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout to GitHub
+        uses: actions/checkout@v3
+        
       - name: setup python
         uses: actions/setup-python@v2
         with:
           python-version: 3.8
+          
       - name: make-header
-        run:
+        run: |
           python ./scripts/header.py
+          
+      - name: Modifiy the specific files using action
+        uses: action-owner/action-repo@ref
+        
+      - name: Commit and push changes
+        run: |
+          git config --global user.name nekumelon
+          git config --global user.email nekumelon@gmail.com
+
+          git commit -am "added header"
+          git push
+          
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          force: true
