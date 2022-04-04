@@ -2,7 +2,7 @@ name: heroku-deploy
 on: 
   push:
     paths:
-      - 'back-end/'
+      - back-end/**
 
 jobs:
   heroku-deploy:
