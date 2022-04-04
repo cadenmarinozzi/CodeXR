@@ -2,7 +2,7 @@ name: heroku-deploy
 on: 
   push:
     paths:
-      - 'site/'
+      - 'back-end/'
 
 jobs:
   add-header:
