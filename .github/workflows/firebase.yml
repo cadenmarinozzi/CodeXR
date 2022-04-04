@@ -25,15 +25,14 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 12
-          
-      - name: Build path
-        run: cd site
 
       - name: Install dependencies
         run: npm install
 
       - name: Build & deploy
-        run: npm run deploy
+        run: |
+          cd site
+          npm run deploy
         env:
           CI: true
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
