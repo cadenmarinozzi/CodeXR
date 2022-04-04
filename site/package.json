@@ -30,7 +30,7 @@
     "build": "react-scripts build",
     "build:prod": "ELEVENTY_ENV=prod npx eleventy",
     "predeploy": "npm run build:prod",
-    "deploy": "npx firebase deploy",
+    "deploy": "npx firebase deploy"
   },
   "eslintConfig": {
     "extends": [
