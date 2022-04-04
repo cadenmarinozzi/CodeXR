@@ -3,6 +3,9 @@ on:
   push:
     paths:
       - 'site/'
+      
+env:
+  PROJECT_PATH: site/
 
 jobs:
   firebase-deploy:
