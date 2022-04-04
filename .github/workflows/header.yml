@@ -11,4 +11,4 @@ jobs:
           python-version: 3.8
       - name: make-header
         run:
-          python ./scripts/run.py
+          python ./scripts/header.py
