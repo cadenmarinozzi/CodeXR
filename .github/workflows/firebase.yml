@@ -1,5 +1,6 @@
 name: firebase-deploy
 on: 
+  workflow_dispatch:
   push:
     paths:
       - site/**
