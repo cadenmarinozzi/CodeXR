@@ -6,7 +6,6 @@ on:
       - site/**
       
 env:
-  PROJECT_PATH: site/
   FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
 
 jobs:
@@ -26,6 +25,9 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 12
+          
+      - name: Build path
+        run: cd site
 
       - name: Install dependencies
         run: npm install
