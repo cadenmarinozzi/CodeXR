@@ -1,3 +1,8 @@
+/*
+	author....: nekumelon
+	License...: MIT (Check LICENSE)
+*/
+
 const express = require('express');
 const app = express();
 const query = require('./OpenAI/query');

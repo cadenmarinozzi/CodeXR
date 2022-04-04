@@ -1,3 +1,8 @@
+/*
+	author....: nekumelon
+	License...: MIT (Check LICENSE)
+*/
+
 const { initializeApp, setLogLevel } = require('firebase/app');
 const { getDatabase, ref, set } = require('firebase/database');
 const assert = require('assert');

@@ -1,3 +1,8 @@
+/*
+	author....: nekumelon
+	License...: MIT (Check LICENSE)
+*/
+
 const toxicThreshold = -0.355;
 const labels = ['0', '1', '2' ];
 

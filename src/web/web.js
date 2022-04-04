@@ -1,3 +1,8 @@
+/*
+	author....: nekumelon
+	License...: MIT (Check LICENSE)
+*/
+
 const { initializeApp } = require('firebase/app');
 const { getDatabase, ref, set, update, child, get } = require('firebase/database');
 

@@ -1,3 +1,8 @@
+/*
+	author....: nekumelon
+	License...: MIT (Check LICENSE)
+*/
+
 const vscode = require('vscode');
 const query = require('./query');
 const { v4: uuid4 } = require('uuid');

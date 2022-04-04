@@ -1,3 +1,8 @@
+/*
+	author....: nekumelon
+	License...: MIT (Check LICENSE)
+*/
+
 const { Configuration, OpenAIApi } = require('openai');
 const Filter = require('./filter');
 const web = require('../web');

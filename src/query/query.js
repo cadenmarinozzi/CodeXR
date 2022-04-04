@@ -1,3 +1,8 @@
+/*
+	author....: nekumelon
+	License...: MIT (Check LICENSE)
+*/
+
 const axios = require('axios');
 const vscode = require('vscode');
 const { encode, decode } = require('gpt-3-encoder');

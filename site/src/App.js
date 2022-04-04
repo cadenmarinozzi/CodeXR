@@ -1,3 +1,8 @@
+/*
+	author....: nekumelon
+	License...: MIT (Check LICENSE)
+*/
+
 import React from 'react';
 import './Components/OpenAILogo';
 import './App.scss';

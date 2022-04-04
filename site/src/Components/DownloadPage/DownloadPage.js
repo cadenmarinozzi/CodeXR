@@ -1,3 +1,8 @@
+/*
+	author....: nekumelon
+	License...: MIT (Check LICENSE)
+*/
+
 import Button from '../Button';
 import { Gradient } from 'react-gradient';
 import gradients from '../../gradients';

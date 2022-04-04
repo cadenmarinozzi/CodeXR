@@ -1,3 +1,8 @@
+/*
+	author....: nekumelon
+	License...: MIT (Check LICENSE)
+*/
+
 const gradients = {
     main: [
         ['rgb(255, 0, 0)', 'rgb(255, 20, 150)'],

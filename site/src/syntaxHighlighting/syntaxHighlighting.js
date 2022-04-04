@@ -1,4 +1,9 @@
 /*
+	author....: nekumelon
+	License...: MIT (Check LICENSE)
+*/
+
+/*
 STOP!
 If you are looking at this file, look away.
 Nothing good comes from this file...
