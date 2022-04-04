@@ -18,6 +18,8 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
+      - name: GitHub Action for Firebase
+        uses: w9jds/firebase-action@v2.0.0
       - name: Checkout Repo
         uses: actions/checkout@master
       - name: Install Dependencies
