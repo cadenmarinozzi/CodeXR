@@ -20,6 +20,7 @@ function deploy() {
     });
 }
 
+
 async function deploymentLoop() {
     const commits = await axios.get('https://api.github.com/repos/nekumelon/CodeXR/commits');
     const sha = commits.data[0].sha;
@@ -28,7 +29,7 @@ async function deploymentLoop() {
         const commit = await axios.get(`https://api.github.com/repos/nekumelon/CodeXR/commits/${sha}`);
         let changed;
 
-        commit.files.forEach(file => {
+        commit.data.files.forEach(file => {
             if (file.filename.includes('back-end/')) changed = true;
         })
 
