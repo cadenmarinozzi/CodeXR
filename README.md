@@ -16,10 +16,8 @@ CodeXR uses OpenAIs Codex AI model. This means the following terms must be follo
 
 ## Data
 CodeXR collects the following data about the user:
-* User: The username of the authenticated in GitHub account.
 * Usage: The number of completions requested in total.
 * Tokens: The number of tokens requested and received in total.
-* IsInsider: Whether the user is using vscode Insider or not.
 * FlaggedCompletions: The number of completions the user has generated that have been flagged as sensitive.
 
 ## Badges
