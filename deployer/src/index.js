@@ -4,7 +4,7 @@
 */
 
 const axios = require('axios');
-const { spawn } = require('child_process');
+const { exec } = require('child_process');
 
 let lastSha;
 
@@ -13,7 +13,7 @@ let herokuDeployProcess;
 function herokuDeploy() {
     if (herokuDeployProcess) herokuDeployProcess.kill();
 
-    herokuDeployProcess = spawn('cd ../back-end && git commit -am "heroku-deploy" && git push heroku main', (err, stdout) => {
+    herokuDeployProcess = exec('cd ../back-end && git commit -am "heroku-deploy" && git push heroku main', (err, stdout) => {
         if (err) {
             console.error(`An error occured while deploying to Heroku. ${err}`);
 
@@ -29,7 +29,7 @@ let discordDeployProcess;
 function discordDeploy() {
     if (discordDeployProcess) herokuDeployProcess.kill();
 
-    discordDeployProcess = spawn(`cd ../discord && DISCORD_TOKEN="${process.env.DISCORD_TOKEN}" node src/index.js`, (err, stdout) => {
+    discordDeployProcess = exec(`cd ../discord && DISCORD_TOKEN="${process.env.DISCORD_TOKEN}" node src/index.js`, (err, stdout) => {
         if (err) {
             console.error(`An error occured while deploying to Discord. ${err}`);
 

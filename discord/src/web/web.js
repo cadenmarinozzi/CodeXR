@@ -46,7 +46,6 @@ async function incrementStatusData(date) {
 
     // Update the data
     statusUpdates[date] = currentData[date] + 1;
-
     update(statusDataRef, statusUpdates);
 }
 
