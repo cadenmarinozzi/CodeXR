@@ -49,29 +49,34 @@ function removePrefix(input) {
  * @description Asynchronously returns a list of code completions for the current active text editor
  */
 async function getCompletions(context) {
+    // Get the userId from the global state
     let user = context.globalState.get('user');
-    // If there is no userId, create one
 
     if (!user) user = uuid4();
     // If the userId is not in the database, add it
-    
     if (!await web.isUser(user)) {
         context.globalState.update('user', user);
+
         web.beginUser(user);
     }
 
     const editor = vscode.window.activeTextEditor;
     if (!editor) return;
+    // Get the text of the line the cursor is on
     
     const document = editor.document;
     const position = editor.selection.active;
     const lineText = getLineText(document, position);
 
+    // Remove the prefix from the line text
     let [ queryText, hasPrefix ] = removePrefix(lineText);
     queryText.trim();
+        // Get the text of the lines above the cursor
 
     let contextCode;
+    // Show a status bar message
 
+    // Get the completions
     if (position.line > 0) {
         const previousRange = new vscode.Range(document.lineAt(0).range.start, document.lineAt(position.line - 1).range.end);
         contextCode = document.getText(previousRange);
@@ -83,6 +88,12 @@ async function getCompletions(context) {
     return completions;
 }
 
+/**
+ * Creates a status bar item.
+ * @param {string} command - The command to run when the status bar item is clicked.
+ * @param {string} text - The text to display in the status bar item.
+ * @returns {vscode.StatusBarItem} - The created status bar item.
+ */
 function createStatusBarItem(command, text) {
     let statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 0);
     statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');

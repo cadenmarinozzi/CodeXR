@@ -16,11 +16,21 @@ const clamp = (num, min, max) => Math.min(Math.max(num, min), max); // From some
 
 const MAX_TOKENS = 2048;
 
+/**
+ * Query openAI
+ * @param {object} body 
+ * @param {string} body.prompt 
+ * @param {string} body.user 
+ * @param {number} body.maxTokens 
+ * @param {string} body.stop 
+ */
 async function queryOpenAI(body) {
     const nTokens = encode(body.prompt).length;
+    // Increment the user's token count and usage count
 
     await web.incrementUserData(body.user, { 
         tokens: nTokens,
+    // Query OpenAI
         usage: 1
     }); 
 
@@ -33,9 +43,15 @@ async function queryOpenAI(body) {
     });
 }
 
+/**
+ * @async
+ * @function query
+ * @param {object} body - Data about the user's query
+ * @returns {object} - Response data from OpenAI
+ */
 async function query(body) {
     const response = await queryOpenAI(body);
-    const text = response.data.choices[0].text;
+    const text = response.data.choices[0].text; // Get the text from the response
     await web.incrementUserData(body.user, { tokens: encode(text).length }); // Increment the tokens value the length of the text
 
     if (await filter.check(text)) return response;

@@ -11,14 +11,28 @@ class Filter {
         this.openai = openai;
     }
 
+    /**
+     * Handles label from response.
+     *
+     * @param {Object} response Response data
+     * @returns {string} Label
+     */
     handleLabel(response) {
         let label = response.data.choices[0].text;
+        // If the label is 2, then it is toxic
 
+        // Get the log probabilities for each label
         if (label === 2) {
-            const logprobs = response.data.choices[0].logprobs.op_logprobs[0];
 
+            // If the log probability for label 2 is less than the threshold, then it is not toxic
+            const logprobs = response.data.choices[0].logprobs.op_logprobs[0];
+            // Get the log probabilities for labels 0 and 1
+
+
+            // If both log probabilities are defined, then choose the label with the higher log probability
             if (logprobs['2'] < toxicThreshold) {
                 const logprob_0 = logprobs['0'];
+                // If only one log probability is defined, then choose that label
                 const logprob_1 = logprobs['1'];
 
                 if (logprob_0 && logprob_1) {
@@ -32,6 +46,11 @@ class Filter {
         return label;
     }
 
+    /**
+     * check
+     * @param {string} input the input string
+     * @returns {boolean} true if the string is safe, false otherwise
+     */
     async check(input) {
         /*
         0 - safe

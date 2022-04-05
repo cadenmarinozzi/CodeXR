@@ -21,10 +21,28 @@ function requestReset() {
 
 requestReset();
 
+/**
+ * Get the current date
+ * @returns {string} - The current date in the format of yyyy-dd-mm
+ */
+ function getDate() {
+    // Get the current date
+    const date = new Date();
+
+    // Get the day, month and year
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+
+    // Return the date in the format YYYY-DD-MM
+    const year = date.getFullYear();
+
+    return `${year}-${day}-${month}`;
+}
+
 app.post('/query', async(req, res) => {
     try {
         if (requests >= requestsPerMinute) {
-            res.status(400).send('Too many requests');
+            res.status(500).send('Too many requests');
 
             return;
         }
@@ -50,12 +68,17 @@ app.post('/query', async(req, res) => {
         }
         
         requests++;
-        const response = await debounce(async() =>
+        try {
+            const response = await debounce(async() =>
             await query(body), 200)();
 
-        res.status(200).json(response.data.choices);
+            res.status(200).json(response.data.choices);
+        } catch (err) {
+            web.incrementStatusData(getDate());
+            res.status(500).send('Internal server error');
+        }
     } catch (err) {
-        res.status(400).send(`Server error ${err}`);
+        res.status(500).send(`Server error ${err}`);
     }
 });
   
