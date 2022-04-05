@@ -7,7 +7,6 @@ const { Client, Intents } = require('discord.js');
 const QuickChart = require('quickchart-js');
 const web = require('./web');
 const axios = require('axios');
-const gradient = require('chartjs-plugin-gradient');
 
 const client = new Client({intents: [
     Intents.FLAGS.GUILDS,
