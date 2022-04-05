@@ -29,7 +29,7 @@ async function deploymentLoop() {
         let changed;
 
         commit.files.forEach(file => {
-            if (commit.files.filename.includes('back-end/')) changed = true;
+            if (file.filename.includes('back-end/')) changed = true;
         })
 
         if (changed) {
