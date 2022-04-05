@@ -168,13 +168,13 @@ client.on('messageCreate', async(message) => {
             break;
 
         case ('/status'):
-            await web.incrementStatusData(getDate());
             message.reply('Give me a second to fetch the latest data...');
 
             try {
                 await httpGet('https://codexr.herokuapp.com');
                 message.reply('CodeXR is up and running!');
             } catch (err) {
+                await web.incrementStatusData(getDate());
                 message.reply(`CodeXR is down. Status code: ${err}`);
             }
 
