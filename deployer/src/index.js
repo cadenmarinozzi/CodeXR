@@ -10,37 +10,37 @@ const fs = require('fs');
 
 let lastSha;
 
-let herokuDeployProcess;
+// let herokuDeployProcess;
 
-function herokuDeploy() {
-    if (herokuDeployProcess) herokuDeployProcess.kill();
+// function herokuDeploy() {
+//     if (herokuDeployProcess) herokuDeployProcess.kill();
 
-    herokuDeployProcess = exec('cd ../back-end && git commit -am "heroku-deploy" && git push heroku main', (err, stdout) => {
-        if (err) {
-            console.error(`An error occured while deploying to Heroku. ${err}`);
+//     herokuDeployProcess = exec('cd ../back-end && git commit -am "heroku-deploy" && git push heroku main', (err, stdout) => {
+//         if (err) {
+//             console.error(`An error occured while deploying to Heroku. ${err}`);
 
-            return;
-        }
+//             return;
+//         }
 
-        if (stdout) console.log(stdout);
-    });
-}
+//         if (stdout) console.log(stdout);
+//     });
+// }
 
-let discordDeployProcess;
+// let discordDeployProcess;
 
-function discordDeploy() {
-    if (discordDeployProcess) herokuDeployProcess.kill();
+// function discordDeploy() {
+//     if (discordDeployProcess) herokuDeployProcess.kill();
 
-    discordDeployProcess = exec(`cd ../discord && DISCORD_TOKEN="${process.env.DISCORD_TOKEN}" node src/index.js`, (err, stdout) => {
-        if (err) {
-            console.error(`An error occured while deploying to Discord. ${err}`);
+//     discordDeployProcess = exec(`cd ../discord && DISCORD_TOKEN="${process.env.DISCORD_TOKEN}" node src/index.js`, (err, stdout) => {
+//         if (err) {
+//             console.error(`An error occured while deploying to Discord. ${err}`);
 
-            return;
-        }
+//             return;
+//         }
 
-        if (stdout) console.log(stdout);
-    });
-}
+//         if (stdout) console.log(stdout);
+//     });
+// }
 
 let processes = {};
 
@@ -58,7 +58,7 @@ function parseCommand(command) {
 function deploy(config) {
     if (processes[config.name]) processes[config.name].kill();
 
-    processes[config.name] = exec(parseCommand(config.command, (err, stdout) => {
+    processes[config.name] = exec(parseCommand(config.command), (err, stdout) => {
         if (err) {
             console.error(`An error occured while deploying to ${config.name}. ${err}`);
 
@@ -66,7 +66,7 @@ function deploy(config) {
         }
 
         if (config.logs && stdout) console.log(stdout);
-    }))
+    });
 }
 
 async function deploymentLoop() {
@@ -77,14 +77,18 @@ async function deploymentLoop() {
         const commit = await axios.get(`https://api.github.com/repos/nekumelon/CodeXR/commits/${sha}`);
 
         glob('**/deploy-config.json', (err, files) => {
-            if (err) return;
+            if (err) {
+                console.log(err);
+                
+                return;
+            }
 
             files.forEach(file => {
                 const config = JSON.parse(fs.readFileSync(file));
 
-                commit.data.files.foreach(file => {
+                commit.data.files.foreach(commitFile => {
                     config.activationFiles.forEach(activationFile => {
-                        if (file.filename.includes(activationFile)) {
+                        if (commitFile.filename.includes(activationFile)) {
                             console.log(`Hash change: ${sha} Deploying to ${config.name}...`);
                             deploy(config);
                         }

@@ -40,7 +40,6 @@ async function getStatusData() {
 async function incrementStatusData(date) { 
     let statusUpdates = {};
     // Get the current data
-
     // Increment the value for the given date
     const currentData = await getStatusData();
 
