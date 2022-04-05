@@ -18,7 +18,7 @@
     "activationEvents": [
         "onStartupFinished"
     ],
-    "main": "./dist/extension.js",
+    "main": "./src/extension.js",
     "contributes": {
         "configuration": {
             "title": "codexr",

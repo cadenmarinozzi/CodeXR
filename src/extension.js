@@ -18,15 +18,26 @@ function getLineText(document, position) {
 }
 
 /**
+ * Returns the prefix type of the input string
+ * @param {string} input - the input string
+ * @return {boolean} 
+ */
+function getPrefixType(input) {
+    return input.includes('//') || input.includes('#');
+}
+
+/**
  * @function removePrefix
  * @description Removes the prefix from the input
  * @param {string} input - The input string
  */
 function removePrefix(input) {
-    if (input.indexOf('//') < 0) return [ input ];
+    const prefixType = getPrefixType(input);
+    if (!input.includes(prefixType)) return [ input ];
+    if (input.indexOf(prefixType) < 0) return [ input ];
     // If there is no prefix, return the input as-is
 
-    return [ input.substring(2), true ];
+    return [ input.substring(prefixType.length), true ];
     // Otherwise, return the input without the prefix and a flag
     // indicating that the prefix was removed
 }
@@ -55,7 +66,6 @@ async function getCompletions(context) {
     const document = editor.document;
     const position = editor.selection.active;
     const lineText = getLineText(document, position);
-    if (lineText.length <= 2) return;
 
     let [ queryText, hasPrefix ] = removePrefix(lineText);
     queryText.trim();
