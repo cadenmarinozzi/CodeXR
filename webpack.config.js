@@ -1,3 +1,8 @@
+/*
+	author....: nekumelon
+	License...: MIT (Check LICENSE)
+*/
+
 'use strict';
 
 const path = require('path');
