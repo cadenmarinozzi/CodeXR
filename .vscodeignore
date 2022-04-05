@@ -3,3 +3,8 @@
 **/back-end
 **/.github
 **/build
+**/test
+**/src
+**/node_modules
+**/scripts
+**/assets
