@@ -76,7 +76,7 @@ async function deploymentLoop() {
     if (lastSha && sha !== lastSha) {
         const commit = await axios.get(`https://api.github.com/repos/nekumelon/CodeXR/commits/${sha}`);
 
-        glob('**/deploy-config.json', (err, files) => {
+        glob('../../**/deploy-config.json', (err, files) => {
             if (err) {
                 console.log(err);
                 

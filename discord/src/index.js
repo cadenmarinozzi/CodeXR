@@ -40,7 +40,6 @@ async function getStatusChart() {
 
     // Set the background color to transparent
     statusChart.backgroundColor = 'transparent';
-
     // Set the chart configuration
     statusChart.setConfig({
         type: 'bar',
