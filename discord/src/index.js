@@ -115,7 +115,6 @@ async function statusLoop(retries=0) {
     try {
         // Get the channel to send the chart to
         const statusChannel = client.channels.cache.get('960920342258384976');
-
         // Send the chart
         statusChannel.send(await getStatusChartEmbed());
     } catch (err) {
