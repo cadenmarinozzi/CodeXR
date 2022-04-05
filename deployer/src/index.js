@@ -60,7 +60,7 @@ async function deploymentLoop() {
     }
 
     lastSha = sha;
-    setTimeout(deploymentLoop, 1 * 60 * 1000);
+    setTimeout(deploymentLoop, 5 * 60 * 1000);
 }
 
 deploymentLoop();

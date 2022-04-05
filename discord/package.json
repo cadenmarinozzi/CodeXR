@@ -14,7 +14,6 @@
     "discord-api-types": "^0.31.0",
     "discord.js": "^13.6.0",
     "firebase": "^9.6.10",
-    "plotly": "^1.0.6",
     "quickchart-js": "^3.0.1"
   }
 }
