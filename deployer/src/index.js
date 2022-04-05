@@ -5,6 +5,8 @@
 
 const axios = require('axios');
 const { exec } = require('child_process');
+const glob = require('glob');
+const fs = require('fs');
 
 let lastSha;
 
@@ -40,35 +42,60 @@ function discordDeploy() {
     });
 }
 
+let processes = {};
+
+const envRegExp = new RegExp(/(?!\<)(\w+)(?=\>)/g);
+const envReplacerRegExp = new RegExp(/\<\w+\>/g);
+
+function parseCommand(command) {
+    const env = command.match(envRegExp);
+    
+    if (env) return command.replace(envReplacerRegExp, process.env[env[0]]);
+
+    return command;
+}
+
+function deploy(config) {
+    if (processes[config.name]) processes[config.name].kill();
+
+    processes[config.name] = exec(parseCommand(config.command, (err, stdout) => {
+        if (err) {
+            console.error(`An error occured while deploying to ${config.name}. ${err}`);
+
+            return;
+        }
+
+        if (config.logs && stdout) console.log(stdout);
+    }))
+}
+
 async function deploymentLoop() {
     const commits = await axios.get('https://api.github.com/repos/nekumelon/CodeXR/commits');
     const sha = commits.data[0].sha;
 
     if (lastSha && sha !== lastSha) {
         const commit = await axios.get(`https://api.github.com/repos/nekumelon/CodeXR/commits/${sha}`);
-        let backEndChanged, discordChanged;
 
-        commit.data.files.forEach(file => {
-            if (file.filename.includes('back-end/')) backEndChanged = true;
+        glob('**/deploy-config.json', (err, files) => {
+            if (err) return;
+
+            files.forEach(file => {
+                const config = JSON.parse(fs.readFileSync(file));
+
+                commit.data.files.foreach(file => {
+                    config.activationFiles.forEach(activationFile => {
+                        if (file.filename.includes(activationFile)) {
+                            console.log(`Hash change: ${sha} Deploying to ${config.name}...`);
+                            deploy(config);
+                        }
+                    });
+                })
+            });
         });
-
-        commit.data.files.forEach(file => {
-            if (file.filename.includes('discord/')) discordChanged = true;
-        });
-
-        if (backEndChanged) {
-            console.log(`Hash change: ${sha} Deploying to Heroku...`);
-            herokuDeploy();
-        }
-
-        if (discordChanged) {
-            console.log(`Hash change: ${sha} Deploying to Discord...`);
-            discordDeploy();
-        }
     }
 
     lastSha = sha;
-    setTimeout(deploymentLoop, 5 * 60 * 1000);
+    setTimeout(deploymentLoop, 1 * 60 * 1000);
 }
 
 deploymentLoop();

@@ -9,6 +9,7 @@
   "author": "nekumelon",
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.26.1"
+    "axios": "^0.26.1",
+    "glob": "^7.2.0"
   }
 }
