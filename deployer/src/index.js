@@ -84,16 +84,25 @@ async function deploymentLoop() {
             }
 
             files.forEach(file => {
-                const config = JSON.parse(fs.readFileSync(file));
+                fs.readFile(file, (err, data) => {
+                    if (err) {
+                        console.log(err);
+                        
+                        return;
+                    }
 
-                commit.data.files.foreach(commitFile => {
-                    config.activationFiles.forEach(activationFile => {
-                        if (commitFile.filename.includes(activationFile)) {
-                            console.log(`Hash change: ${sha} Deploying to ${config.name}...`);
-                            deploy(config);
-                        }
-                    });
-                })
+                    const config = JSON.parse(data);
+                    
+                    commit.data.files.forEach(commitFile => {
+                        config.activationFiles.forEach(activationFile => {
+                            console.log(activationFile)
+                            if (commitFile.filename.includes(activationFile)) {
+                                console.log(`Hash change: ${sha} Deploying to ${config.name}...`);
+                                deploy(config);
+                            }
+                        });
+                    })
+                });
             });
         });
     }
