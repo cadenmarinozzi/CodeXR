@@ -1,5 +1,5 @@
 ## CodeXR
-The future of programming.
+<img src='./assets/CodeXRLogo.png' width=100>
 
 ## Best Practices
 To get the best out of CodeXR, you should:
@@ -28,8 +28,6 @@ CodeXR collects the following data about the user:
 
 ## Author
 - [@nekumelon](https://www.github.com/nekumelon)
-- Email: nekumelon@gmail.com
-- Reddit: reddit.com/u/nekumelon
 
 ## Support
 For support, email nekumelon@gmail.com.
