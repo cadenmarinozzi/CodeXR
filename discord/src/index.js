@@ -1,3 +1,8 @@
+/*
+	author....: nekumelon
+	License...: MIT (Check LICENSE)
+*/
+
 const { Client, Intents } = require('discord.js');
 const QuickChart = require('quickchart-js');
 const web = require('./web');
