@@ -39,6 +39,10 @@ requestReset();
     return `${year}-${day}-${month}`;
 }
 
+app.get('/', async(req, res) => {
+    res.status(200).end('https://github.com/nekumelon/CodeXR');
+});
+    
 app.post('/query', async(req, res) => {
     try {
         if (requests >= requestsPerMinute) {

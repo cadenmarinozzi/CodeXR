@@ -11,24 +11,24 @@ let lastSha;
 function herokuDeploy() {
     exec('cd ../back-end && git commit -am "heroku-deploy" && git push heroku main', (err, stdout, stderr) => {
         if (err || stderr) {
-            console.error(`An error occured while deploying to Heroku. ${err}`);
+            console.error(`An error occured while deploying to Heroku. ${err || stderr}`);
 
             return;
         }
 
-        console.log(stdout);
+        if (stdout) console.log(stdout);
     });
 }
 
 function discordDeploy() {
     exec(`cd ../discord && DISCORD_TOKEN="${process.env.DISCORD_TOKEN}" node src/index.js`, (err, stdout, stderr) => {
         if (err || stderr) {
-            console.error(`An error occured while deploying to Discord. ${err}`);
+            console.error(`An error occured while deploying to Discord. ${err || stderr}`);
 
             return;
         }
 
-        console.log(stdout);
+        if (stdout) console.log(stdout);
     });
 }
 
