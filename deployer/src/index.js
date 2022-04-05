@@ -36,12 +36,12 @@ async function deploymentLoop() {
     const sha = commits.data[0].sha;
 
     if (lastSha && sha !== lastSha) {
-        lastSha = sha;
         console.log(`Hash change: ${sha} Deploying...`);
         deploy();
     }
 
-    setTimeout(deploymentLoop, 2 * 60 * 1000);
+    lastSha = sha;
+    setTimeout(deploymentLoop, 1 * 60 * 1000);
 }
 
 deploymentLoop();
