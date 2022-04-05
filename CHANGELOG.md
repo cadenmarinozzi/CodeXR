@@ -5,3 +5,5 @@ Added support for python comments
 * April 5, 2022 | 11:33 AM
 Created the discord bot to view the report status of CodeXR \
 Added statusData to the database and added it to the back-end
+* April 5, 2022 | 12:37 PM
+Added deployer to deploy the discord bot and back-end whenever there is a change to their respective directories. (I didn't use GitHub actions for it since the discord bot is hosted on my server)
