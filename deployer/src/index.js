@@ -9,7 +9,7 @@ const { exec } = require('child_process');
 let lastSha;
 
 function herokuDeploy() {
-    exec('cd ../../back-end && git commit -am "heroku-deploy" && git push heroku main', (err, stdout, stderr) => {
+    exec('cd ../back-end && git commit -am "heroku-deploy" && git push heroku main', (err, stdout, stderr) => {
         if (err || stderr) {
             console.error(`An error occured while deploying to Heroku. ${err}`);
 
@@ -21,7 +21,7 @@ function herokuDeploy() {
 }
 
 function discordDeploy() {
-    exec(`cd ../../discord && DISCORD_TOKEN="${process.env.DISCORD_TOKEN}" node src/index.js`, (err, stdout, stderr) => {
+    exec(`cd ../discord && DISCORD_TOKEN="${process.env.DISCORD_TOKEN}" node src/index.js`, (err, stdout, stderr) => {
         if (err || stderr) {
             console.error(`An error occured while deploying to Discord. ${err}`);
 
