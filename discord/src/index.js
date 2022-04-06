@@ -160,24 +160,28 @@ client.on('messageCreate', async(message) => {
         return;
     }
 
-    switch (message.content) {
-        case ('/statusChart'):
-            message.reply(await getStatusChartEmbed());
+    try {
+        switch (message.content) {
+            case ('/statusChart'):
+                message.reply(await getStatusChartEmbed());
 
-            break;
+                break;
 
-        case ('/status'):
-            message.reply('Give me a second to fetch the latest data...');
+            case ('/status'):
+                message.reply('Give me a second to fetch the latest data...');
 
-            try {
-                await httpGet('https://codexr.herokuapp.com');
-                message.reply('CodeXR is up and running!');
-            } catch (err) {
-                await web.incrementStatusData(getDate());
-                message.reply(`CodeXR is down. Status code: ${err}`);
-            }
+                try {
+                    await httpGet('https://codexr.herokuapp.com');
+                    message.reply('CodeXR is up and running!');
+                } catch (err) {
+                    await web.incrementStatusData(getDate());
+                    message.reply(`CodeXR is down. Status code: ${err}`);
+                }
 
-            break;
+                break;
+        }
+    } catch (err) {
+        console.error(`An error occured in the message handler  ${err}`);
     }
 });
 

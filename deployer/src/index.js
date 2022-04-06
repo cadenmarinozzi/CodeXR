@@ -58,7 +58,26 @@ function parseCommand(command) {
 function deploy(config) {
     if (processes[config.name]) processes[config.name].kill();
 
-    processes[config.name] = exec(parseCommand(config.command), (err, stdout, stderr) => {
+    if (process.platform !== 'win32') {
+        processes[config.name] = exec(parseCommand(config.command), (err, stdout) => {
+            if (err) {
+                console.error(`An error occured while deploying to ${config.name}: ${err}`);
+            }
+
+            if (config.logs && stdout) console.log(stdout);
+        });
+
+        return;
+    }
+
+    delete process.platform;
+    process.platform = 'linux';
+
+
+    processes[config.name] = exec(parseCommand(config.command), {
+        env: { PATH: 'C:\\Program Files\\git\\usr\\bin' },
+        shell: 'C:\\Program Files\\git\\usr\\bin\\bash.exe'
+    }, (err, stdout) => {
         if (err) {
             console.error(`An error occured while deploying to ${config.name}: ${err}`);
         }
