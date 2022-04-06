@@ -155,19 +155,23 @@ client.once('ready', () => {
     statusLoop();
 });
 
+let prefix = '/';
+
 client.on('messageCreate', async(message) => {
-    if (message.author.bot) {
+    if (message.author.bot || !message.content.startsWith(prefix)) {
         return;
     }
 
+    message.content = message.content.substring(prefix.length);
+
     try {
         switch (message.content) {
-            case ('/statusChart'):
+            case ('statusChart'):
                 message.reply(await getStatusChartEmbed());
 
                 break;
 
-            case ('/status'):
+            case ('status'):
                 message.reply('Give me a second to fetch the latest data...');
 
                 try {
