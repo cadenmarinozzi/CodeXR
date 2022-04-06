@@ -58,56 +58,83 @@ function parseCommand(command) {
 function deploy(config) {
     if (processes[config.name]) processes[config.name].kill();
 
-    processes[config.name] = exec(parseCommand(config.command), (err, stdout) => {
+    processes[config.name] = exec(parseCommand(config.command), (err, stdout, stderr) => {
         if (err) {
-            console.error(`An error occured while deploying to ${config.name}. ${err}`);
-
-            return;
+            console.error(`An error occured while deploying to ${config.name}: ${err}`);
         }
 
         if (config.logs && stdout) console.log(stdout);
     });
 }
 
-async function deploymentLoop() {
-    const commits = await axios.get('https://api.github.com/repos/nekumelon/CodeXR/commits');
-    const sha = commits.data[0].sha;
+glob('../../**/deploy-config.json', (err, files) => {
+    if (err) {
+        console.log(err);
+        
+        return;
+    }
 
-    if (lastSha && sha !== lastSha) {
-        const commit = await axios.get(`https://api.github.com/repos/nekumelon/CodeXR/commits/${sha}`);
-
-        glob('../../**/deploy-config.json', (err, files) => {
+    files.forEach(file => {
+        fs.readFile(file, (err, data) => {
             if (err) {
                 console.log(err);
                 
                 return;
             }
 
-            files.forEach(file => {
-                fs.readFile(file, (err, data) => {
-                    if (err) {
-                        console.log(err);
-                        
-                        return;
-                    }
+            const config = JSON.parse(data);
 
-                    const config = JSON.parse(data);
+            if (config.deployOnStart) {
+                console.log(`Deploying to ${config.name}...`);
+                deploy(config);
+            }
+        });
+    });
+});
+
+async function deploymentLoop() {
+    try {
+        const commits = await axios.get('https://api.github.com/repos/nekumelon/CodeXR/commits');
+        const sha = commits.data[0].sha;
+
+        if (lastSha && sha !== lastSha) {
+            const commit = await axios.get(`https://api.github.com/repos/nekumelon/CodeXR/commits/${sha}`);
+
+            glob('../../**/deploy-config.json', (err, files) => {
+                if (err) {
+                    console.log(err);
                     
-                    commit.data.files.forEach(commitFile => {
-                        config.activationFiles.forEach(activationFile => {
-                            console.log(activationFile)
-                            if (commitFile.filename.includes(activationFile)) {
-                                console.log(`Hash change: ${sha} Deploying to ${config.name}...`);
-                                deploy(config);
-                            }
-                        });
-                    })
+                    return;
+                }
+
+                files.forEach(file => {
+                    fs.readFile(file, (err, data) => {
+                        if (err) {
+                            console.log(err);
+                            
+                            return;
+                        }
+
+                        const config = JSON.parse(data);
+                        
+                        commit.data.files.forEach(commitFile => {
+                            config.activationFiles.forEach(activationFile => {
+                                if (commitFile.filename.includes(activationFile)) {
+                                    console.log(`Hash change: ${sha} Deploying to ${config.name}...`);
+                                    deploy(config);
+                                }
+                            });
+                        })
+                    });
                 });
             });
-        });
-    }
+        }
 
     lastSha = sha;
+    } catch (err) {
+        console.log(`Deployment loop failed: ${err.message}`)
+    }
+
     setTimeout(deploymentLoop, 1 * 60 * 1000);
 }
 

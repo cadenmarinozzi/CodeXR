@@ -2,6 +2,7 @@
     "name": "Discord",
     "command": "cd ../discord && DISCORD_TOKEN=\"<DISCORD_TOKEN>\" node src/index.js",
     "logs": true,
+    "deployOnStart": true,
     "activationFiles": [
         "discord/"
     ]
