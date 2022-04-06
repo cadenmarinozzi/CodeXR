@@ -125,7 +125,7 @@ async function statusLoop(retries=0) {
         }
     }
 
-    setTimeout(statusLoop, 12 * 60 * 60 * 1000);
+    setTimeout(statusLoop, 1 * 60 * 60 * 1000);
 }
 
 /**
