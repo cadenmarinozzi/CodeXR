@@ -64,7 +64,7 @@ function getContext(document, position) {
  */
 async function getCompletions(context) {
     // Get the userId from the global state
-    const user = context.globalState.get('user');
+    let user = context.globalState.get('user');
 
     if (!user) {
         user = uuid4();
