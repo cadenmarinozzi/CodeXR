@@ -9,19 +9,21 @@ const { encode, decode } = require('gpt-3-encoder');
 
 const config = vscode.workspace.getConfiguration('codexr');
 
-async function httpPost(url, data) {
-    const response = await axios.post(url, data);
-    
-    return response;
+// function constructInsertPrompt(prefix, line, suffix, language) {
+//     return `// Language: ${language}\n${prefix}\n${line}[insert]\n${suffix}`;
+// }
+
+function constructCompletionPrompt(context, query, language) {
+    return `// Language: ${language}\n${context}\n${query}`;
 }
 
-async function queryOpenAI(context, query, user) {
+async function queryOpenAI(context, query, user, language) {
     const maxTokens = config.get('max_tokens');
-    const prompt = `<|endoftext|>\n/* If the command asks you to generate code, generate the code requested. If it is a slice of code that needs completing, complete it. */\n/* If context code is given, use it as context for the command. */\n\n/* Context:\nimport random\n/* Command: def generateRandom( */\nn, min, max):\ngenerated = [];\n\nfor i in range(n):\t\ngenerated.append(random.randint(min, max));\n\nreturn generated;\n/* Command: Implement a fizzbuzz function */\nfunction fizzBuzz(number) {\n\tlet out = '';\n\n\tif (number % 3 == 0) out += 'fizz';\n\tif (number % 5 == 0) out += 'buzz';\n\tif (out == '') out = number;\n\n\tconsole.log(out);\n}\n/* Context:\nfunction square(x) {\n\treturn x * x;\n}\nconst input = 10;\n/* Command: const squared = squa */\nre(input);\n/* Command: function binarySe */\nearch(array, target) {\n\tlet low = 0;\n\tlet high = array.length - 1;\n\n\twhile (low <= high) {\n\t\tconst middle = Math.floor(low + (high - low) / 2);\n\t\tconst value = array[middle];\n\n\t\tif (value == target) return middle;\n\t\tif (value > target) high = middle - 1;\n\t\telse low = middle + 1;\n\t}\n}\n${context ? '/*Context:\n' + context : ''}\n/* Command: ${query} */\n`;
+    console.log(context, query, user, language)
 
-    return await httpPost('https://codexr.herokuapp.com/query', {
-        prompt: prompt,
-        stop: [ '/* Command', '/* Context' ],
+    return await axios.post('https://codexr.herokuapp.com/query', {
+        prompt: constructCompletionPrompt(context, query, language),
+        stop: [ '/* Command', '/* Context', '\n\n\n' ],
         user: user,
         maxTokens: maxTokens
     });
@@ -30,14 +32,14 @@ async function queryOpenAI(context, query, user) {
 /**
  * This function trims the context so that it is the specified maximum number of tokens long.
  * @param {string} context - The context to be trimmed.
- * @param {string} prompt - The prompt to be used as a reference point for trimming.
+ * @param {string} query - The query to be used as a reference point for trimming.
  * @returns {string} - The trimmed context.
  */
- function trimContext(context, prompt) {
+ function trimContext(context, query) {
     const maxTokens = config.get('max_tokens');
     const encoded = encode(context);
 
-    return decode(encoded.slice(Math.min(encoded.length - (maxTokens - encode(prompt).length), 0), encoded.length));
+    return decode(encoded.slice(Math.min(encoded.length - (maxTokens - encode(query).length), 0), encoded.length));
 }
 
 /**
@@ -57,19 +59,10 @@ function removeQuery(input, query) {
     return input.substring(0, index + query.length);
 }
 
-/**
- * @async
- * @function query
- * @param {string} language - the language of the context
- * @param {string} context - the context of the conversation
- * @param {string} query - the user's query
- * @param {boolean} hasPrefix - whether or not the user's query has a prefix
- * @returns {Promise<Array<string>>} - an array of responses to the user's query
- */
-async function query(language, context, query, hasPrefix, user) {
-    if (context) context = trimContext(context, query);
+async function query(request) {
+    if (request.context) request.context = trimContext(request.context, request.query);
 
-    const response = await queryOpenAI(context, `${language} ${query}`, user);
+    const response = await queryOpenAI(request.context, request.query, request.user, request.language);
     // Query OpenAI
 
     // If there are no choices, return an empty array
@@ -78,7 +71,7 @@ async function query(language, context, query, hasPrefix, user) {
     // Otherwise, return the choices with the query removed
     return await Promise.all(response.data.map(async value => {
         // Remove the query from the code
-        const code = removeQuery(value.text.trim(), query);
+        let code = removeQuery(value.text.trim(), request.context);
 
         return code;
     }));

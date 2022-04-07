@@ -39,7 +39,8 @@ async function queryOpenAI(body) {
         temperature: 0,
 		max_tokens: clamp(MAX_TOKENS - nTokens, 1, body.maxTokens),
         stop: body.stop,
-        user: body.user
+        user: body.user,
+        frequency_penalty: 0.34
     });
 }
 

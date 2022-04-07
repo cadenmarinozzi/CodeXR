@@ -4,10 +4,15 @@
   "description": "The future of programming.",
   "version": "1.0.0",
   "license": "MIT",
+  "preview": true,
+  "homepage": "https://github.com/nekumelon/CodeXR#readme",
+  "author": "nekumelon",
   "publisher": "nekumelon",
+  "icon": "https://gist.github.com/nekumelon/b0da6781d94bfd38254a328d26a35441#file-codexrlogo-png",
+  "main": "./src/extension.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nekumelon/CodeXR.git"
+    "url": "https://github.com/nekumelon/CodeXR"
   },
   "engines": {
     "vscode": "^1.65.0"
@@ -18,7 +23,6 @@
   "activationEvents": [
     "onStartupFinished"
   ],
-  "main": "./src/extension.js",
   "contributes": {
     "configuration": {
       "title": "codexr",
@@ -75,7 +79,5 @@
   },
   "bugs": {
     "url": "https://github.com/nekumelon/CodeXR/issues"
-  },
-  "homepage": "https://github.com/nekumelon/CodeXR#readme",
-  "author": "nekumelon"
+  }
 }

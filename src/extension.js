@@ -69,21 +69,22 @@ async function getCompletions(context) {
     const lineText = getLineText(document, position);
 
     // Remove the prefix from the line text
-    let [ queryText, hasPrefix ] = removePrefix(lineText);
+    let [ queryText ] = removePrefix(lineText);
     queryText.trim();
         // Get the text of the lines above the cursor
 
-    let contextCode;
+    let contextCode = '';
     // Show a status bar message
 
     // Get the completions
     if (position.line > 0) {
         const previousRange = new vscode.Range(document.lineAt(0).range.start, document.lineAt(position.line - 1).range.end);
-        contextCode = document.getText(previousRange);
+        const postRange = new vscode.Range(document.lineAt(position.line - 1).range.end, new vscode.Position(document.lineCount, 100));
+        contextCode = document.getText(previousRange) + '\n' + document.getText(postRange);
     }
 
     vscode.window.setStatusBarMessage('Generating a completion...', 4000);
-    const completions = await query(document.languageId, contextCode, queryText, hasPrefix, user);
+    const completions = await query({ context: contextCode, user: user, language: document.languageId, query: queryText });
 
     return completions;
 }
@@ -96,7 +97,7 @@ async function getCompletions(context) {
  */
 function createStatusBarItem(command, text) {
     let statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 0);
-    statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
+    statusBarItem.color = '#f00';
     statusBarItem.text = text;
     statusBarItem.command = command;
     statusBarItem.show();

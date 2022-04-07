@@ -33,6 +33,17 @@ async function getStatusData() {
 }
 
 /**
+ * @async
+ * @function beginStatusData
+ * @param {string} date - a string in the format "yyyy-mm-dd"
+ * @description Updates the statusUpdates object with the given date and a value of 0.
+ */
+async function beginStatusData(date) {
+    statusUpdates[date] = 0;
+    update(statusDataRef, statusUpdates);
+}
+
+/**
  * incrementStatusData increments the status data for a date.
  * @param {string} date - A date in the format of "MMDDYYYY".
  * @return {Promise} A promise that resolves when the data has been updated.
@@ -43,8 +54,8 @@ async function incrementStatusData(date) {
     // Increment the value for the given date
     const currentData = await getStatusData();
     // Update the data
-    statusUpdates[date] = currentData[date] + 1;
+    statusUpdates[date] = (currentData[date] ?? 0) + 1;
     update(statusDataRef, statusUpdates);
 }
 
-module.exports = { getStatusData, incrementStatusData };
+module.exports = { getStatusData, incrementStatusData, beginStatusData };

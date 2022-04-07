@@ -15,18 +15,6 @@ const client = new Client({intents: [
 
 /**
  * @async
- * @function httpGet
- * @param {string} url - The url to fetch from.
- * @returns {Promise<Object>} - A promise that resolves to the response data.
- */
-async function httpGet(url) {
-    const response = await axios.get(url);
-    
-    return response;
-}
-
-/**
- * @async
  * @function getStatusChart
  * @summary Gets the status chart
  * @returns {Promise<string>} - Returns the short URL of the chart
@@ -105,30 +93,6 @@ async function getStatusChartEmbed() {
 }
 
 /**
- * @async
- * @function statusLoop
- * @param {number} [retries=0]
- * @returns {Promise<void>}
- */
-async function statusLoop(retries=0) {
-    try {
-        // Get the channel to send the chart to
-        const statusChannel = client.channels.cache.get('960920342258384976');
-        // Send the chart
-        statusChannel.send(await getStatusChartEmbed());
-    } catch (err) {
-        if (retries > 5) {
-            console.error(`Failed to update status chart ${err}`);
-        } else {
-            console.warn(`Unable to send the chart. Attempts: ${retries} Retrying...`);
-            statusLoop(retries + 1);
-        }
-    }
-
-    setTimeout(statusLoop, 1 * 60 * 60 * 1000);
-}
-
-/**
  * Get the current date
  * @returns {string} - The current date in the format of yyyy-dd-mm
  */
@@ -144,6 +108,33 @@ function getDate() {
     const year = date.getFullYear();
 
     return `${year}-${day}-${month}`;
+}
+
+/**
+ * @async
+ * @function statusLoop
+ * @param {number} [retries=0]
+ * @returns {Promise<void>}
+ */
+async function statusLoop(retries=0) {
+    const date = getDate();
+    if (!await web.getStatusData(date)) web.beginStatusData(date);
+
+    try {
+        // Get the channel to send the chart to
+        const statusChannel = client.channels.cache.get('960920342258384976');
+        // Send the chart
+        statusChannel.send(await getStatusChartEmbed());
+    } catch (err) {
+        if (retries > 5) {
+            console.error(`Failed to update status chart ${err}`);
+        } else {
+            console.warn(`Unable to send the chart. Attempts: ${retries} Retrying...`);
+            statusLoop(retries + 1);
+        }
+    }
+
+    setTimeout(statusLoop, 1 * 60 * 60 * 1000);
 }
 
 client.once('ready', () => {
@@ -175,7 +166,13 @@ client.on('messageCreate', async(message) => {
                 message.reply('Give me a second to fetch the latest data...');
 
                 try {
-                    await httpGet('https://codexr.herokuapp.com');
+                    
+                    await axios({ 
+                        url: 'https://codexr.herokuapp.com',
+                        method: 'get',
+                        timeout: 4000 
+                    });
+
                     message.reply('CodeXR is up and running!');
                 } catch (err) {
                     await web.incrementStatusData(getDate());
