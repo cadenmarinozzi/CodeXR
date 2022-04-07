@@ -8,7 +8,7 @@
 const path = require('path');
 
 const config = {
-  mode: "production",
+  mode: 'production',
   target: 'node',
   entry: './src/extension.js',
   output: {
@@ -23,6 +23,14 @@ const config = {
   },
   resolve: {
     extensions: ['.js', '.json', '.jsx'],
+  },
+  module: {
+    rules: [
+      {
+        test: /\.(png|svg|jpg|jpeg|gif)$/i,
+        type: 'asset/resource',
+      }
+    ]
   }
 };
 

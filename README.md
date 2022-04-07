@@ -32,6 +32,10 @@ The following information IS NOT collected about each user:
 * The prompts sent to the API, this means the context code and the line code.
 * Personally identifying information about each user, such as their name, email, phone number, GitHub, etc.
 
+## Resources
+<a href='https://discord.gg/GmTm4GtTPG'><img src='./assets/DiscordLogo.png' width=100></a> \
+<a href='https://codexr-app.firebaseapp.com'>Website</a>
+
 ## Documentation
 99% of the documentation in CodeXR was made by `https://github.com/nekumelon/CodeDoc`
 ## Badges

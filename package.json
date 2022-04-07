@@ -1,11 +1,12 @@
 {
   "name": "codexr",
   "displayName": "CodeXR",
-  "description": "The future of programming.",
+  "description": "AI code generation and code completion in a breeze.",
   "version": "1.0.0",
   "license": "MIT",
   "preview": true,
   "homepage": "https://github.com/nekumelon/CodeXR#readme",
+  "icon": "assets/CodeXRLogo.png",
   "author": "nekumelon",
   "publisher": "nekumelon",
   "main": "./dist/extension.js",
@@ -13,11 +14,23 @@
     "type": "git",
     "url": "https://github.com/nekumelon/CodeXR"
   },
+  "keywords": [
+    "CodeXR",
+    "Code completion",
+    "Code generation",
+    "AI code generation",
+    "AI code completion",
+    "OpenAI",
+    "AI",
+    "AI code"    
+  ],
   "engines": {
     "vscode": "^1.65.0"
   },
   "categories": [
-    "Other"
+    "Other",
+    "Programming Languages",
+    "Machine Learning"
   ],
   "activationEvents": [
     "onStartupFinished"
@@ -26,11 +39,6 @@
     "configuration": {
       "title": "codexr",
       "properties": {
-        "codexr.realtime": {
-          "type": "boolean",
-          "default": true,
-          "description": "Completes code in realtime instead of on a keybind (Can be a little buggy without vscode Insider)"
-        },
         "codexr.max_tokens": {
           "type": "number",
           "default": 500,
@@ -76,6 +84,7 @@
     "uuid": "^8.3.2"
   },
   "bugs": {
-    "url": "https://github.com/nekumelon/CodeXR/issues"
+    "url": "https://github.com/nekumelon/CodeXR/issues",
+    "email": "nekumelon@gmail.com"
   }
 }
