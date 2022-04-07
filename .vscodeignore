@@ -4,5 +4,8 @@
 **/.github
 **/build
 **/test
+**/src
+**/deployer
+**/discord
 **/scripts
 **/node_modules

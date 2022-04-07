@@ -1,6 +1,10 @@
 ## CodeXR
 <img src='./assets/CodeXRLogo.png' width=100>
 
+## Installing
+### BETA INSTALL
+You can install the Beta CodeXR Visual Studio Code extension from: <a href='https://marketplace.visualstudio.com/items?itemName=nekumelon.codexr'>Marketplace</a>
+
 ## Best Practices
 To get the best out of CodeXR, you should:
 * Split large functions into many, smaller functions.
