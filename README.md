@@ -20,11 +20,15 @@ The following information is stored in the database about each user:
 * User ID: A 36 character randomly generated ID that represents the user.
 * Usage: The number of times the user has queried the CodeXR API.
 * Tokens: The number of tokens the user has queried with.
+
 The following information is collected AS A WHOLE, not about each individual user:
+
 * The number of times the API has been queried.
 * The number of errors the server has produced.
 * The size of the data sent to the API
+
 The following information IS NOT collected about each user:
+
 * The prompts sent to the API, this means the context code and the line code.
 * Personally identifying information about each user, such as their name, email, phone number, GitHub, etc.
 ## Badges
