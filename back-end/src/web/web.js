@@ -20,6 +20,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 const statusDataRef = ref(database, 'statusData');
+const usersRef = ref(database, 'users');
 
 /**
  * Get data from the statusDataRef and return it.
@@ -59,7 +60,7 @@ async function incrementStatusData(date) {
  * @returns {any} The data of the user with the given key
  */
 async function readUserData(user, key) {
-    const userData = await get(child(ref(database), `users/${user}/${key}`));
+    const userData = await get(child(usersRef, user + '/' + key));
 
     return userData.val();
 }
@@ -75,10 +76,10 @@ function updateUserData(user, data) {
     // formatted as `users/${user}/${key}`
 
     for (const key of Object.keys(data)) {
-        updates[`users/${user}/${key}`] = data[key];
+        updates[user + '/' + key] = data[key];
     }
 
-    update(ref(database), updates);
+    update(usersRef, updates);
 }
 
 /**
@@ -102,7 +103,7 @@ async function incrementUserData(user, data) { // Decrement is just negative usa
  * @returns {boolean} - true if the user is blacklisted
  */
 async function userBlacklisted(user) {
-    const isBlacklisted = await get(child(ref(database), `users/${user}/blacklisted`));
+    const isBlacklisted = await get(child(usersRef, `${user}/blacklisted`));
 
     return isBlacklisted.exists() && isBlacklisted.val();
 }
@@ -113,9 +114,20 @@ async function userBlacklisted(user) {
  * @returns {Promise<boolean>} Whether or not the user exists
  */
 async function isUser(user) {
-    const userData = await get(child(ref(database), `users/${user}`));
+    const userData = await get(child(usersRef, user));
 
-    return userData.exists();
+    return userData.exists() && userData.val();
 }
 
-module.exports = { incrementUserData, updateUserData, isUser, userBlacklisted, getStatusData, incrementStatusData };
+async function beginUser(user) {
+    let updates = {};
+    updates[user] = {
+        blacklisted: false,
+        tokens: 0,
+        usage: 0
+    };
+
+    update(usersRef, updates);
+}
+
+module.exports = { incrementUserData, updateUserData, isUser, userBlacklisted, getStatusData, incrementStatusData, beginUser };

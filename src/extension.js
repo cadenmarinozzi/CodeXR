@@ -6,7 +6,7 @@
 const vscode = require('vscode');
 const query = require('./query');
 const { v4: uuid4 } = require('uuid');
-const web = require('./web');
+const tinygradient = require('tinygradient');
   
 /**
  * @param {Document} document 
@@ -18,28 +18,19 @@ function getLineText(document, position) {
 }
 
 /**
- * Returns the prefix type of the input string
- * @param {string} input - the input string
- * @return {boolean} 
+ * @param {document} The document to get the context from
+ * @param {position} The position in the document
+ * @returns {string} A string containing the context
  */
-function getPrefixType(input) {
-    return input.includes('//') || input.includes('#');
-}
+function getContext(document, position) {
+    // Get the range of the previous lines
+    const previousRange = new vscode.Range(document.lineAt(0).range.start, document.lineAt(position.line - 1).range.end);
+    // Get the range of the following lines
+    const postRange = new vscode.Range(document.lineAt(position.line - 1).range.end, new vscode.Position(document.lineCount, 100));
+    // Combine the previous and following lines
+    const context = document.getText(previousRange) + '\n' + document.getText(postRange);
 
-/**
- * @function removePrefix
- * @description Removes the prefix from the input
- * @param {string} input - The input string
- */
-function removePrefix(input) {
-    const prefixType = getPrefixType(input);
-    if (!input.includes(prefixType)) return [ input ];
-    if (input.indexOf(prefixType) < 0) return [ input ];
-    // If there is no prefix, return the input as-is
-
-    return [ input.substring(prefixType.length), true ];
-    // Otherwise, return the input without the prefix and a flag
-    // indicating that the prefix was removed
+    return context ?? '';
 }
 
 /**
@@ -50,43 +41,23 @@ function removePrefix(input) {
  */
 async function getCompletions(context) {
     // Get the userId from the global state
-    let user = context.globalState.get('user');
+    const user = context.globalState.get('user');
 
-    if (!user) user = uuid4();
-    // If the userId is not in the database, add it
-    if (!await web.isUser(user)) {
+    if (!user) {
+        user = uuid4();
         context.globalState.update('user', user);
-
-        web.beginUser(user);
     }
-
+    
     const editor = vscode.window.activeTextEditor;
     if (!editor) return;
     // Get the text of the line the cursor is on
     
     const document = editor.document;
-    const position = editor.selection.active;
-    const lineText = getLineText(document, position);
+    const cursorPosition = editor.selection.active;
+    const queryText = getLineText(document, cursorPosition);
+    const contextCode = getContext(document, cursorPosition);
 
-    // Remove the prefix from the line text
-    let [ queryText ] = removePrefix(lineText);
-    queryText.trim();
-        // Get the text of the lines above the cursor
-
-    let contextCode = '';
-    // Show a status bar message
-
-    // Get the completions
-    if (position.line > 0) {
-        const previousRange = new vscode.Range(document.lineAt(0).range.start, document.lineAt(position.line - 1).range.end);
-        const postRange = new vscode.Range(document.lineAt(position.line - 1).range.end, new vscode.Position(document.lineCount, 100));
-        contextCode = document.getText(previousRange) + '\n' + document.getText(postRange);
-    }
-
-    vscode.window.setStatusBarMessage('Generating a completion...', 4000);
-    const completions = await query({ context: contextCode, user: user, language: document.languageId, query: queryText });
-
-    return completions;
+    return await query({ context: contextCode, user: user, language: document.languageId, query: queryText });
 }
 
 /**
@@ -97,37 +68,51 @@ async function getCompletions(context) {
  */
 function createStatusBarItem(command, text) {
     let statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 0);
-    statusBarItem.color = '#f00';
     statusBarItem.text = text;
     statusBarItem.command = command;
     statusBarItem.show();
+
+    const gradient = tinygradient('#FF1F40', '#428CFF', '#4A45FF');
+    let timeStep = 0.001;
+    let time = 0.001;
+
+    function update() {
+        if (time + timeStep >= 1 || time + timeStep <= 0) timeStep = -timeStep;
+        time += timeStep;
+        statusBarItem.color = gradient.rgbAt(time).toString();
+
+        setTimeout(update, 10);
+    }
+
+    update();
 
     return statusBarItem;
 }
 
 function activate(context) {
     const config = vscode.workspace.getConfiguration('codexr');
+    
     const queryDisposable = vscode.commands.registerCommand('codexr.query', async() => {
-        const editor = vscode.window.activeTextEditor;
-        if (!editor) return;
+        try {
+            const editor = vscode.window.activeTextEditor;
+            if (!editor) return;
 
-        // Get the first result from the query
-        const position = editor.selection.active;
-        // If there is no code, return
+            const position = editor.selection.active;
 
-        const completions = await getCompletions(context);
-        // Insert the code into the editor
-        if (!completions || completions.length < 1) return;
-
-        const code = completions[0];
-        
-        editor.edit(editBuilder => {
-            editBuilder.insert(position, code);
-        });
+            const completions = await getCompletions(context);
+            // Insert the code into the editor
+            if (!completions || completions.length < 1) return;
+            
+            editor.edit(editBuilder => {
+                editBuilder.insert(position, completions[0]);
+            });
+        } catch (err) {
+            console.error(`An error occured while trying to query the CodeXR API: ${err}`);
+        }
     });
 
     context.subscriptions.push(queryDisposable);
-    context.subscriptions.push(createStatusBarItem('codexr.query', '$(variable)', 'CodeXR'));
+    context.subscriptions.push(createStatusBarItem('codexr.query', 'CodeXR', 'CodeXR'));
 
     if (!config.get('realtime')) return;
     

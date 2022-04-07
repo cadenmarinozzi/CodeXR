@@ -103,12 +103,12 @@ async function deploymentLoop() {
             });
         }
 
-    lastSha = sha;
+        lastSha = sha;
     } catch (err) {
         console.log(`Deployment loop failed: ${err.message}`)
     }
 
-    setTimeout(deploymentLoop, 1 * 60 * 1000);
+    setTimeout(deploymentLoop, 5 * 60 * 1000);
 }
 
 deploymentLoop();

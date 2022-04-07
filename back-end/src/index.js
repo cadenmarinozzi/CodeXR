@@ -65,6 +65,10 @@ app.post('/query', async(req, res) => {
             return;
         };
 
+        if (!await web.isUser(body.user)) {
+            await web.beginUser(body.user);
+        }
+
         if (await web.userBlacklisted(body.user)) {
             res.status(403).send('User blacklisted');
             
@@ -72,6 +76,7 @@ app.post('/query', async(req, res) => {
         }
         
         requests++;
+
         try {
             const response = await debounce(async() =>
             await query(body), 200)();
@@ -82,7 +87,7 @@ app.post('/query', async(req, res) => {
             res.status(500).send('Internal server error');
         }
     } catch (err) {
-        res.status(500).send(`Server error ${err}`);
+        res.status(500).send(`Internal server error`);
     }
 });
   
