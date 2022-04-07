@@ -8,8 +8,7 @@
   "homepage": "https://github.com/nekumelon/CodeXR#readme",
   "author": "nekumelon",
   "publisher": "nekumelon",
-  "icon": "https://gist.github.com/nekumelon/b0da6781d94bfd38254a328d26a35441#file-codexrlogo-png",
-  "main": "./src/extension.js",
+  "main": "./dist/extension.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/nekumelon/CodeXR"
@@ -73,8 +72,6 @@
   },
   "dependencies": {
     "axios": "^0.26.1",
-    "firebase": "^9.6.10",
-    "gpt-3-encoder": "^1.1.3",
     "tinygradient": "^1.1.5",
     "uuid": "^8.3.2"
   },

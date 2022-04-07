@@ -5,7 +5,6 @@
 
 const axios = require('axios');
 const vscode = require('vscode');
-const { encode, decode } = require('gpt-3-encoder');
 
 const config = vscode.workspace.getConfiguration('codexr');
 
@@ -29,19 +28,6 @@ async function queryOpenAI(context, query, user, language) {
 }
 
 /**
- * This function trims the context so that it is the specified maximum number of tokens long.
- * @param {string} context - The context to be trimmed.
- * @param {string} query - The query to be used as a reference point for trimming.
- * @returns {string} - The trimmed context.
- */
- function trimContext(context, query) {
-    const maxTokens = config.get('max_tokens');
-    const encoded = encode(context);
-
-    return decode(encoded.slice(Math.min(encoded.length - (maxTokens - encode(query).length), 0), encoded.length));
-}
-
-/**
  * Removes the given query from the input string.
  * @param {string} input The string to remove the query from.
  * @param {string} query The query to remove.
@@ -59,8 +45,6 @@ function removeQuery(input, query) {
 }
 
 async function query(request) {
-    if (request.context) request.context = trimContext(request.context, request.query);
-
     const response = await queryOpenAI(request.context, request.query, request.user, request.language);
     // Query OpenAI
 
