@@ -23,14 +23,37 @@ function getLineText(document, position) {
  * @returns {string} A string containing the context
  */
 function getContext(document, position) {
-    // Get the range of the previous lines
-    const previousRange = new vscode.Range(document.lineAt(0).range.start, document.lineAt(position.line - 1).range.end);
-    // Get the range of the following lines
-    const postRange = new vscode.Range(document.lineAt(position.line - 1).range.end, new vscode.Position(document.lineCount, 100));
-    // Combine the previous and following lines
-    const context = document.getText(previousRange) + '\n' + document.getText(postRange);
+    const lastLine = document.lineCount - 1;
+    if (lastLine < 2) return '';
 
-    return context ?? '';
+    let prefix = '';
+    let suffix = '';
+
+    if (position.line > 1) {
+        // Get the range of the previous lines
+        const firtLinePosition = document.lineAt(0).range.start;
+        const lineBeforeCursorPosition = document.lineAt(position.line - 1).range.end;
+
+        const previousRange = new vscode.Range(firtLinePosition, lineBeforeCursorPosition);
+
+        if (document.validateRange(previousRange))
+            prefix = document.getText(previousRange);
+    }
+
+    if (position.line !== lastLine) {
+        // Get the range of the following lines
+        const lineAfterCursorPosition = document.lineAt(position.line + 1).range.end;
+        const lastLinePosition = new vscode.Position(lastLine, document.lineAt(lastLine).range.end.character);
+
+        const postRange = new vscode.Range(lineAfterCursorPosition, lastLinePosition);
+
+        if (document.validateRange(postRange))
+            suffix = document.getText(postRange);
+    }
+
+    // Combine the previous and following lines
+
+    return prefix + '\n' + suffix;
 }
 
 /**
@@ -47,7 +70,7 @@ async function getCompletions(context) {
         user = uuid4();
         context.globalState.update('user', user);
     }
-    
+
     const editor = vscode.window.activeTextEditor;
     if (!editor) return;
     // Get the text of the line the cursor is on
@@ -93,7 +116,7 @@ function activate(context) {
     const config = vscode.workspace.getConfiguration('codexr');
     
     const queryDisposable = vscode.commands.registerCommand('codexr.query', async() => {
-        try {
+        try { 
             const editor = vscode.window.activeTextEditor;
             if (!editor) return;
 

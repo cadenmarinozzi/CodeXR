@@ -12,3 +12,5 @@ Simplified the prompt for a smaller token quota. \
 Lots of refactoring.
 * April 7, 2022 | 9:28 AM
 Ported all of the firebase web stuff to the back-end
+* April 7, 2022 | 10:48 AM
+Added a new context getter that supporta prefix and suffix text

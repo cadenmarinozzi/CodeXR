@@ -31,6 +31,9 @@ The following information IS NOT collected about each user:
 
 * The prompts sent to the API, this means the context code and the line code.
 * Personally identifying information about each user, such as their name, email, phone number, GitHub, etc.
+
+## Documentation
+99% of the documentation in CodeXR was made by `https://github.com/nekumelon/CodeDoc`
 ## Badges
 [![CodeFactor Code Quality](https://img.shields.io/codefactor/grade/github/nekumelon/CodeXR)](https://www.codefactor.io/repository/github/nekumelon/codexr)
 [![Top Languages](https://img.shields.io/github/languages/top/nekumelon/CodeXR)](https://github.com/nekumelon/CodeXR)

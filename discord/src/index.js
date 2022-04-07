@@ -166,11 +166,10 @@ client.on('messageCreate', async(message) => {
                 message.reply('Give me a second to fetch the latest data...');
 
                 try {
-                    
                     await axios({ 
                         url: 'https://codexr.herokuapp.com',
                         method: 'get',
-                        timeout: 4000 
+                        timeout: 8000 
                     });
 
                     message.reply('CodeXR is up and running!');

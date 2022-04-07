@@ -19,7 +19,6 @@ function constructCompletionPrompt(context, query, language) {
 
 async function queryOpenAI(context, query, user, language) {
     const maxTokens = config.get('max_tokens');
-    console.log(context, query, user, language)
 
     return await axios.post('https://codexr.herokuapp.com/query', {
         prompt: constructCompletionPrompt(context, query, language),
