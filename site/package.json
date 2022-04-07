@@ -29,7 +29,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "predeploy": "npm run build",
-    "deploy": "npx firebase deploy"
+    "deploy": "firebase deploy --only hosting"
   },
   "eslintConfig": {
     "extends": [

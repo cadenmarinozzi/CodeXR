@@ -1,6 +1,6 @@
 {
     "name": "firebase",
-    "command": "cd ../site && firebase deploy --only hosting",
+    "command": "cd ../site && npm run deploy",
     "logs": true,
     "activationFiles": [
         "site/"
