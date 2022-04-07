@@ -1,7 +1,13 @@
 {
   "short_name": "codexr",
-  "name": "codexr",
+  "name": "CodeXR",
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000"
+  "theme_color": "#000000",
+  "icons": [
+    {
+    "src": "favicon.ico",
+    "sizes": "64x64 48x48 32x32 24x24 16x16",
+    "type": "image/x-icon"
+  }]   
 }
