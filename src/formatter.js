@@ -1,3 +1,8 @@
+/*
+	author....: nekumelon
+	License...: MIT (Check LICENSE)
+*/
+
 const prettier = require('prettier');
 
 function format(code) {
