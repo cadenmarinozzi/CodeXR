@@ -15,21 +15,21 @@ import Footer from './Components/Footer';
 import DownloadPage from './Components/DownloadPage';
 
 function scrollToComponent(ref) {
-    window.scrollTo({ top: ref.current.offsetTop, behavior: 'smooth' });
+	window.scrollTo({ top: ref.current.offsetTop, behavior: 'smooth' });
 }
 
 function App() {
-    const ref = React.useRef();
-    
-    return (
-        <>
-            <TopPage scroller={() => scrollToComponent(ref)} />
-            <ExamplesPage />
-            <AboutPage />
-            <DownloadPage reference={ref} />
-            <Footer />
-        </>
-    );
+	const ref = React.useRef();
+
+	return (
+		<>
+			<TopPage scroller={() => scrollToComponent(ref)} />
+			<ExamplesPage />
+			<AboutPage />
+			<DownloadPage reference={ref} />
+			<Footer />
+		</>
+	);
 }
 
-export default App; 
+export default App;

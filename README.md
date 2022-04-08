@@ -3,7 +3,12 @@
 
 ## Installing
 ### BETA INSTALL
-You can install the Beta CodeXR Visual Studio Code extension from: <a href='https://marketplace.visualstudio.com/items?itemName=nekumelon.codexr'>Marketplace</a>
+You can install the Beta CodeXR Visual Studio Code extension from: <a href='https://marketplace.visualstudio.com/items?itemName=nekumelon.codexr'>Marketplace</a> \
+Keep in mind that since CodeXR is in beta, it will be buggy, have a lot of down time, and sometimes may not even work at all. If you experience any issues, bugs, or have any suggestions, please feel free to send an email to me at `nekumelon@gmail.com`, report it in the Discord, or open an issue on the GitHub. \
+If you receive a completion that doesn't match the prompt, please take a screenshot of both the prompt and completion, and send it to me, as it allows me to tweak the base prompt that CodeXR uses to get the best results from the API.
+
+## Keybindings
+To activate CodeXR (To query the API), the default keybinding is cmd+enter (Windows and Mac). This can be changed in the vscode keybind preferences by going to the vscode preferences menu, selecting `Keyboard Shortcuts`, typing in `CodeXR` and typing in the new keyboard shortcut.
 
 ## Best Practices
 To get the best out of CodeXR, you should:

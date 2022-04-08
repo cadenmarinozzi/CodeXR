@@ -16,7 +16,6 @@ const clamp = (num, min, max) => Math.min(Math.max(num, min), max); // From some
 
 const MAX_TOKENS = 2048;
 
-
 /**
  * Trims a given prompt to a certain number of maxTokens.
  *
@@ -25,37 +24,39 @@ const MAX_TOKENS = 2048;
  * @returns {string} The trimmed string.
  */
 function trimPrompt(prompt, maxTokens) {
-    const encoded = encode(prompt);
+	const encoded = encode(prompt);
 
-    return decode(encoded.slice(Math.min(encoded.length - maxTokens, 0), encoded.length));
+	return decode(
+		encoded.slice(Math.min(encoded.length - maxTokens, 0), encoded.length)
+	);
 }
 
 /**
  * Query openAI
- * @param {object} body 
- * @param {string} body.prompt 
- * @param {string} body.user 
- * @param {number} body.maxTokens 
- * @param {string} body.stop 
+ * @param {object} body
+ * @param {string} body.prompt
+ * @param {string} body.user
+ * @param {number} body.maxTokens
+ * @param {string} body.stop
  */
 async function queryOpenAI(body) {
-    const nTokens = encode(body.prompt).length;
-    // Increment the user's token count and usage count
+	const nTokens = encode(body.prompt).length;
+	// Increment the user's token count and usage count
 
-    await web.incrementUserData(body.user, { 
-        tokens: nTokens,
-    // Query OpenAI
-        usage: 1
-    }); 
+	await web.incrementUserData(body.user, {
+		tokens: nTokens,
+		// Query OpenAI
+		usage: 1
+	});
 
-    return await openai.createCompletion('code-cushman-001', {
-        prompt: body.prompt,
-        temperature: 0,
+	return await openai.createCompletion('code-cushman-001', {
+		prompt: body.prompt,
+		temperature: 0,
 		max_tokens: clamp(MAX_TOKENS - nTokens, 1, body.maxTokens),
-        stop: body.stop,
-        user: body.user,
-        frequency_penalty: 0.34
-    });
+		stop: body.stop,
+		user: body.user,
+		frequency_penalty: 0.34
+	});
 }
 
 /**
@@ -65,15 +66,15 @@ async function queryOpenAI(body) {
  * @returns {object} - Response data from OpenAI
  */
 async function query(body) {
-    body.prompt = trimPrompt(body.prompt);
+	body.prompt = trimPrompt(body.prompt);
 
-    const response = await queryOpenAI(body);
-    const text = response.data.choices[0].text; // Get the text from the response
-    await web.incrementUserData(body.user, { tokens: encode(text).length }); // Increment the tokens value the length of the text
+	const response = await queryOpenAI(body);
+	const text = response.data.choices[0].text; // Get the text from the response
+	await web.incrementUserData(body.user, { tokens: encode(text).length }); // Increment the tokens value the length of the text
 
-    if (await filter.check(text)) return response;
+	if (await filter.check(text)) return response;
 
-    return {};
+	return {};
 }
 
 module.exports = query;

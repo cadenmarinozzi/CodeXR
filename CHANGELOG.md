@@ -14,3 +14,8 @@ Lots of refactoring.
 Ported all of the firebase web stuff to the back-end
 * April 7, 2022 | 10:48 AM
 Added a new context getter that supporta prefix and suffix text
+* April 7, 2022 | 8:22 PM
+Added a completion cache to cache previously completed prompts.
+Added a code formatter to prettify the completion code.
+Reworked the prompt.
+Automatically check the status of the back-end when the statusChart is sent every hour.

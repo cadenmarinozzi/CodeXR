@@ -2,7 +2,7 @@
   "name": "codexr",
   "displayName": "CodeXR",
   "description": "AI code generation and code completion in a breeze.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
   "preview": true,
   "homepage": "https://github.com/nekumelon/CodeXR#readme",
@@ -22,7 +22,7 @@
     "AI code completion",
     "OpenAI",
     "AI",
-    "AI code"    
+    "AI code"
   ],
   "engines": {
     "vscode": "^1.65.0"
@@ -61,6 +61,7 @@
     ]
   },
   "scripts": {
+    "format": "npx prettier --write .",
     "lint": "eslint . --ext .js",
     "test": "mocha --reporter list",
     "vsce-package": "vsce package --out build/CodeXR.vsix",
@@ -75,6 +76,7 @@
     "eslint": "^8.12.0",
     "glob": "^7.2.0",
     "mocha": "^9.2.2",
+    "prettier": "2.6.2",
     "webpack": "^5.71.0",
     "webpack-cli": "^4.9.2"
   },

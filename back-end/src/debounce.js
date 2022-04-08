@@ -13,8 +13,8 @@ let timer;
  */
 function debounce(inner, ms) {
 	let resolves = [];
-  
-	return (...args) => {    
+
+	return (...args) => {
 		clearTimeout(timer);
 
 		timer = setTimeout(() => {
@@ -22,7 +22,7 @@ function debounce(inner, ms) {
 			resolves.forEach(resolve => resolve(result));
 			resolves = [];
 		}, ms);
-	
+
 		return new Promise(resolve => resolves.push(resolve));
 	};
 }

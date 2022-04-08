@@ -7,14 +7,18 @@ const vscode = require('vscode');
 const query = require('./query');
 const { v4: uuid4 } = require('uuid');
 const tinygradient = require('tinygradient');
-  
+const format = require('./formatter');
+const cache = require('./completionCache');
+
 /**
- * @param {Document} document 
- * @param {Position} position 
+ * @param {Document} document
+ * @param {Position} position
  */
 function getLineText(document, position) {
-    // Get the text of the line that the position is on
-    return document.getText(new vscode.Range(position.with(undefined, 0), position));
+	// Get the text of the line that the position is on
+	return document.getText(
+		new vscode.Range(position.with(undefined, 0), position)
+	);
 }
 
 /**
@@ -23,64 +27,89 @@ function getLineText(document, position) {
  * @returns {string} A string containing the context
  */
 function getContext(document, position) {
-    const lastLine = document.lineCount - 1;
-    if (lastLine < 2) return '';
+	const lastLine = document.lineCount - 1;
+	if (lastLine < 2) return '';
 
-    let prefix = '';
-    let suffix = '';
+	let prefix = '';
+	let suffix = '';
 
-    if (position.line > 1) {
-        // Get the range of the previous lines
-        const firtLinePosition = document.lineAt(0).range.start;
-        const lineBeforeCursorPosition = document.lineAt(position.line - 1).range.end;
+	if (position.line > 1) {
+		// Get the range of the previous lines
+		const firtLinePosition = document.lineAt(0).range.start;
+		const lineBeforeCursorPosition = document.lineAt(position.line - 1)
+			.range.end;
 
-        const previousRange = new vscode.Range(firtLinePosition, lineBeforeCursorPosition);
+		const previousRange = new vscode.Range(
+			firtLinePosition,
+			lineBeforeCursorPosition
+		);
 
-        if (document.validateRange(previousRange))
-            prefix = document.getText(previousRange);
-    }
+		if (document.validateRange(previousRange))
+			prefix = document.getText(previousRange);
+	}
 
-    if (position.line !== lastLine) {
-        // Get the range of the following lines
-        const lineAfterCursorPosition = document.lineAt(position.line + 1).range.end;
-        const lastLinePosition = new vscode.Position(lastLine, document.lineAt(lastLine).range.end.character);
+	if (position.line !== lastLine) {
+		// Get the range of the following lines
+		const lineAfterCursorPosition = document.lineAt(position.line + 1).range
+			.end;
+		const lastLinePosition = new vscode.Position(
+			lastLine,
+			document.lineAt(lastLine).range.end.character
+		);
 
-        const postRange = new vscode.Range(lineAfterCursorPosition, lastLinePosition);
+		const postRange = new vscode.Range(
+			lineAfterCursorPosition,
+			lastLinePosition
+		);
 
-        if (document.validateRange(postRange))
-            suffix = document.getText(postRange);
-    }
+		if (document.validateRange(postRange))
+			suffix = document.getText(postRange);
+	}
 
-    // Combine the previous and following lines
+	// Combine the previous and following lines
 
-    return prefix + '\n' + suffix;
+	return prefix + '\n' + suffix;
 }
 
 /**
- * @async 
+ * @async
  * @function getCompletions
  * @returns {Promise<vscode.CompletionList>}
  * @description Asynchronously returns a list of code completions for the current active text editor
  */
 async function getCompletions(context) {
-    // Get the userId from the global state
-    let user = context.globalState.get('user');
+	// Get the userId from the global state
+	let user = context.globalState.get('user');
 
-    if (!user) {
-        user = uuid4();
-        context.globalState.update('user', user);
-    }
+	if (!user) {
+		user = uuid4();
+		context.globalState.update('user', user);
+	}
 
-    const editor = vscode.window.activeTextEditor;
-    if (!editor) return;
-    // Get the text of the line the cursor is on
-    
-    const document = editor.document;
-    const cursorPosition = editor.selection.active;
-    const queryText = getLineText(document, cursorPosition);
-    const contextCode = getContext(document, cursorPosition);
+	const editor = vscode.window.activeTextEditor;
+	if (!editor) return;
+	// Get the text of the line the cursor is on
 
-    return await query({ context: contextCode, user: user, language: document.languageId, query: queryText });
+	const document = editor.document;
+	const cursorPosition = editor.selection.active;
+	const queryText = getLineText(document, cursorPosition);
+	const cachedCompletion = cache.getcachedCompletion(queryText);
+
+	if (cachedCompletion) return cachedCompletion;
+
+	const contextCode = getContext(document, cursorPosition);
+	const completions = await query({
+		context: contextCode,
+		user: user,
+		language: document.languageId,
+		query: queryText
+	});
+
+	const completion = completions[0];
+
+	cache.cacheCompletion(queryText, completion);
+
+	return completion;
 }
 
 /**
@@ -90,56 +119,66 @@ async function getCompletions(context) {
  * @returns {vscode.StatusBarItem} - The created status bar item.
  */
 function createStatusBarItem(command, text) {
-    let statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 0);
-    statusBarItem.text = text;
-    statusBarItem.command = command;
-    statusBarItem.show();
+	let statusBarItem = vscode.window.createStatusBarItem(
+		vscode.StatusBarAlignment.Left,
+		0
+	);
+	statusBarItem.text = text;
+	statusBarItem.command = command;
+	statusBarItem.show();
 
-    const gradient = tinygradient('#FF1F40', '#428CFF', '#4A45FF');
-    let timeStep = 0.001;
-    let time = 0.001;
+	const gradient = tinygradient('#FF1F40', '#428CFF', '#4A45FF');
+	let timeStep = 0.001;
+	let time = 0.001;
 
-    function update() {
-        if (time + timeStep >= 1 || time + timeStep <= 0) timeStep = -timeStep;
-        time += timeStep;
-        statusBarItem.color = gradient.rgbAt(time).toString();
+	function update() {
+		if (time + timeStep >= 1 || time + timeStep <= 0) timeStep = -timeStep;
+		time += timeStep;
+		statusBarItem.color = gradient.rgbAt(time).toString();
 
-        setTimeout(update, 10);
-    }
+		setTimeout(update, 10);
+	}
 
-    update();
+	update();
 
-    return statusBarItem;
+	return statusBarItem;
 }
 
 function activate(context) {
-    const config = vscode.workspace.getConfiguration('codexr');
-    
-    const queryDisposable = vscode.commands.registerCommand('codexr.query', async() => {
-        try { 
-            const editor = vscode.window.activeTextEditor;
-            if (!editor) return;
+	const config = vscode.workspace.getConfiguration('codexr');
 
-            const position = editor.selection.active;
+	const queryDisposable = vscode.commands.registerCommand(
+		'codexr.query',
+		async () => {
+			try {
+				const editor = vscode.window.activeTextEditor;
+				if (!editor) return;
 
-            const completions = await getCompletions(context);
-            // Insert the code into the editor
-            if (!completions || completions.length < 1) return;
-            
-            editor.edit(editBuilder => {
-                editBuilder.insert(position, completions[0]);
-            });
-        } catch (err) {
-            console.error(`An error occured while trying to query the CodeXR API: ${err}`);
-        }
-    });
+				const position = editor.selection.active;
 
-    context.subscriptions.push(queryDisposable);
-    context.subscriptions.push(createStatusBarItem('codexr.query', 'CodeXR', 'CodeXR'));
+				const completion = await getCompletions(context);
+				if (!completion) return;
 
-    if (!config.get('realtime')) return;
-    
-    // TODO
+				// Insert the code into the editor
+				editor.edit(editBuilder => {
+					editBuilder.insert(position, format(completion)); // Format the completion
+				});
+			} catch (err) {
+				console.error(
+					`An error occured while trying to query the CodeXR API: ${err}`
+				);
+			}
+		}
+	);
+
+	context.subscriptions.push(queryDisposable);
+	context.subscriptions.push(
+		createStatusBarItem('codexr.query', 'CodeXR', 'CodeXR')
+	);
+
+	if (!config.get('realtime')) return;
+
+	// TODO
 }
 
 module.exports = { activate, deactivate: () => {} };

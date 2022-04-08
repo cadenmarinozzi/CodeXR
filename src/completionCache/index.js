@@ -3,4 +3,6 @@
 	License...: MIT (Check LICENSE)
 */
 
-export { default } from './ExamplesPage';
+const cache = require('./cache');
+
+module.exports = cache;
