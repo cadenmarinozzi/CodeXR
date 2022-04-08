@@ -136,7 +136,7 @@ function getDate() {
 async function statusLoop(retries = 0) {
 	const date = getDate();
 	if (!(await web.getStatusData(date))) web.beginStatusData(date);
-    
+
 	try {
 		// Get the channel to send the chart to
 		const statusChannel = client.channels.cache.get('960920342258384976');
