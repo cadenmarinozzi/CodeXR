@@ -5,3 +5,15 @@ h1 {
 .page4 {
     margin: 50px;
 }
+
+.download-container {
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+}
+/* Add a padding to the last button in the container */
+.download-container button {
+    margin-bottom: 10px;
+}
