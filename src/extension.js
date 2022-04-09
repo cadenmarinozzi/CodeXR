@@ -36,9 +36,10 @@ function getLanguageComment(code, language) {
 }
 
 /**
- * @param {document} The document to get the context from
- * @param {position} The position in the document
- * @returns {string} A string containing the context
+ * Returns the context of the text document with respect to the position 
+ * @param {TextDocument} document 
+ * @param {Position} position 
+ * @returns {String} context
  */
 function getContext(document, position) {
 	const lastLine = document.lineCount - 1;
@@ -82,7 +83,7 @@ function getContext(document, position) {
 
 	// Combine the previous and following lines
 
-	return prefix + '\n' + suffix;
+	return [ prefix, suffix ];
 }
 
 /**
@@ -92,7 +93,7 @@ function getContext(document, position) {
  * @description Asynchronously returns a list of code completions for the current active text editor
  */
 async function getCompletions(context) {
-	// Get the userId from the global state
+	// Get the current user
 	let user = context.globalState.get('user');
 
 	if (!user) {
@@ -102,27 +103,38 @@ async function getCompletions(context) {
 
 	const editor = vscode.window.activeTextEditor;
 	if (!editor) return;
-	// Get the text of the line the cursor is on
 
 	const document = editor.document;
 	const cursorPosition = editor.selection.active;
+
+	// If a cached completion exists, don't query the API again, just return the cached completion
 	const queryText = getLineText(document, cursorPosition);
 	const cachedCompletion = cache.getCachedCompletion(context, queryText);
 
 	if (cachedCompletion) return cachedCompletion;
 
-	const contextCode = getContext(document, cursorPosition);
-	const completions = await query({
-		context: contextCode,
+	// Retrieve the context and query the API
+	const [ prefix, suffix ] = getContext(document, cursorPosition);
+	const completion = await query({
+		prefix: prefix,
+		suffix: suffix,
 		user: user,
 		language: document.languageId,
 		query: queryText
 	});
 
-	const completion = completions[0];
-	cache.cacheCompletion(context, queryText, completion);
+	const completionCode = completion.text();
 
-	return completion;
+	if (completion.finish_reason === 'length') {
+		vscode.window.showInformationMessage('The query is too long!');
+
+		return;
+	}
+
+	// Cache the generated completion
+	cache.cacheCompletion(context, queryText, completionCode);
+
+	return completionCode;
 }
 
 /**
@@ -158,6 +170,8 @@ function createStatusBarItem(command, text) {
 }
 
 function activate(context) {
+	let statusBarItem = createStatusBarItem('codexr.query', 'CodeXR', 'CodeXR');
+
 	const queryDisposable = vscode.commands.registerCommand(
 		'codexr.query',
 		async () => {
@@ -167,6 +181,8 @@ function activate(context) {
 
 				const document = editor.document;
 				const position = editor.selection.active;
+
+				statusBarItem.text = '$(sync~spin)';
 
 				let completion = await getCompletions(context);
 				if (!completion) return;
@@ -180,6 +196,7 @@ function activate(context) {
 
 				// Insert the code into the editor
 				editor.edit(editBuilder => {
+					statusBarItem.text = 'CodeXR';
 					editBuilder.insert(position, completion); // Format the completion
 				});
 			} catch (err) {
@@ -192,8 +209,7 @@ function activate(context) {
 	);
 
 	context.subscriptions.push(queryDisposable);
-	context.subscriptions.push(
-		createStatusBarItem('codexr.query', 'CodeXR', 'CodeXR')
+	context.subscriptions.push(statusBarItem
 	);
 }
 

@@ -69,14 +69,16 @@ async function query(request) {
 	if (!response.data) return [];
 
 	// Otherwise, return the choices with the query removed
-	return await Promise.all(
-		response.data.map(async value => {
-			// Remove the query from the code
-			let code = removeQuery(value.text.trim(), request.context);
+	// return await Promise.all(
+	// 	response.data.map(async value => {
+	// 		// Remove the query from the code
+	// 		let code = removeQuery(value.text.trim(), request.context);
 
-			return code;
-		})
-	);
+	// 		return code;
+	// 	})
+	// );
+
+	return response.data[0];
 }
 
 module.exports = query;

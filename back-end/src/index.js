@@ -8,6 +8,7 @@ const app = express();
 const query = require('./OpenAI/query');
 const debounce = require('./debounce');
 const web = require('./web');
+const { validate: uuidIsValid, version: uuidVersion } = require('uuid');
 
 app.use(express.json());
 
@@ -39,6 +40,15 @@ function getDate() {
 	return `${year}-${day}-${month}`;
 }
 
+/**
+ * @function isValidUser
+ * @param {string} user - a uuid
+ * @returns {boolean} - true if the uuid is valid and is version 4, false otherwise
+ */
+function isValidUser(user) {
+	return uuidIsValid(user) && uuidVersion(user) === 4;
+}
+
 app.get('/', async (req, res) => {
 	res.status(200).end('https://github.com/nekumelon/CodeXR');
 });
@@ -46,7 +56,7 @@ app.get('/', async (req, res) => {
 app.post('/query', async (req, res) => {
 	try {
 		if (requests >= requestsPerMinute) {
-			res.status(500).send('Too many requests');
+			res.status(429).send('Too many requests');
 
 			return;
 		}
@@ -55,12 +65,15 @@ app.post('/query', async (req, res) => {
 
 		if (
 			!body ||
-			!body.promot ||
-			!body.context ||
+			body.prompt === undefined ||
+			body.prompt === null ||
 			!body.language ||
 			!body.user ||
+			!isValidUser(body.user) ||
 			!body.maxTokens ||
-			!body.stop
+			!body.stop ||
+			body.suffix === undefined || body.suffix === null ||
+			body.prefix === undefined || body.prefix === null
 		) {
 			res.status(400).send('Bad request');
 
@@ -88,9 +101,12 @@ app.post('/query', async (req, res) => {
 			res.status(200).json(response.data.choices);
 		} catch (err) {
 			web.incrementStatusData(getDate());
-			res.status(500).send('Internal server error');
+			
+			console.error(err);
+			res.status(500).send(`Internal server error ${err}`);
 		}
 	} catch (err) {
+		console.error(err);
 		res.status(500).send(`Internal server error`);
 	}
 });

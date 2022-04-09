@@ -47,6 +47,12 @@ function constructCompletionPrompt(context, query, language) {
 	);
 }
 
+function constructInsertionPrompt(prefix, prompt, language) {
+	return (
+		`// Language: ${language}\n${prefix}\n{prompt}\n`
+	);
+}
+
 /**
  * Query openAI
  * @param {object} body
@@ -56,8 +62,8 @@ function constructCompletionPrompt(context, query, language) {
  * @param {string} body.stop
  */
 async function queryOpenAI(body) {
-	const prompt = constructCompletionPrompt(
-		body.context,
+	const prompt = constructInsertionPrompt(
+		body.prefix,
 		body.prompt,
 		body.language
 	);
@@ -72,6 +78,7 @@ async function queryOpenAI(body) {
 
 	return await openai.createCompletion('code-cushman-001', {
 		prompt: prompt,
+		suffix: body.suffix,
 		temperature: 0,
 		max_tokens: clamp(MAX_TOKENS - nTokens, 1, body.maxTokens),
 		stop: body.stop,
