@@ -19,3 +19,5 @@ Added a completion cache to cache previously completed prompts.
 Added a code formatter to prettify the completion code.
 Reworked the prompt.
 Automatically check the status of the back-end when the statusChart is sent every hour.
+* April 8, 2022 | 4:58 PM
+Moved the base prompt to the back-end

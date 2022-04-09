@@ -5,6 +5,26 @@
 
 const prettier = require('prettier');
 
+const languages = [
+	'javascript',
+	'jsx',
+	'html',
+	'css',
+	'scss',
+	'less',
+	'graphql',
+	'json',
+	'yaml',
+	'yml',
+	'vue',
+	'angular',
+	'typescript',
+	'flow',
+	'md',
+	'mdx',
+	'gfm'
+];
+
 function format(code) {
 	return prettier.format(code, {
 		parser: 'babel',
@@ -18,4 +38,4 @@ function format(code) {
 	});
 }
 
-module.exports = format;
+module.exports = { prettier: format, languages };

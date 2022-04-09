@@ -55,7 +55,9 @@ app.post('/query', async (req, res) => {
 
 		if (
 			!body ||
-			!body.prompt ||
+			!body.promot ||
+			!body.context ||
+			!body.language ||
 			!body.user ||
 			!body.maxTokens ||
 			!body.stop

@@ -7,8 +7,9 @@ const vscode = require('vscode');
 const query = require('./query');
 const { v4: uuid4 } = require('uuid');
 const tinygradient = require('tinygradient');
-const format = require('./formatter');
+const formatter = require('./formatter');
 const cache = require('./completionCache');
+const languages = require('./languages');
 
 /**
  * @param {Document} document
@@ -19,6 +20,19 @@ function getLineText(document, position) {
 	return document.getText(
 		new vscode.Range(position.with(undefined, 0), position)
 	);
+}
+
+/**
+ * @function getLanguageComment
+ * @param {string} code - the code to check
+ * @param {string} language - the language to check
+ * @returns {boolean} - true if the code includes the comment for the given language, false otherwise
+ */
+function getLanguageComment(code, language) {
+	let comment = languages[language].comment;
+	if (!comment) comment = languages.default;
+
+	return code.includes(comment);
 }
 
 /**
@@ -93,7 +107,7 @@ async function getCompletions(context) {
 	const document = editor.document;
 	const cursorPosition = editor.selection.active;
 	const queryText = getLineText(document, cursorPosition);
-	const cachedCompletion = cache.getcachedCompletion(queryText);
+	const cachedCompletion = cache.getCachedCompletion(context, queryText);
 
 	if (cachedCompletion) return cachedCompletion;
 
@@ -106,8 +120,7 @@ async function getCompletions(context) {
 	});
 
 	const completion = completions[0];
-
-	cache.cacheCompletion(queryText, completion);
+	cache.cacheCompletion(context, queryText, completion);
 
 	return completion;
 }
@@ -145,8 +158,6 @@ function createStatusBarItem(command, text) {
 }
 
 function activate(context) {
-	const config = vscode.workspace.getConfiguration('codexr');
-
 	const queryDisposable = vscode.commands.registerCommand(
 		'codexr.query',
 		async () => {
@@ -154,16 +165,25 @@ function activate(context) {
 				const editor = vscode.window.activeTextEditor;
 				if (!editor) return;
 
+				const document = editor.document;
 				const position = editor.selection.active;
 
-				const completion = await getCompletions(context);
+				let completion = await getCompletions(context);
 				if (!completion) return;
+
+				if (
+					formatter.languages.includes(
+						document.languageId.toLowerCase()
+					)
+				)
+					completion = formatter.prettier(completion);
 
 				// Insert the code into the editor
 				editor.edit(editBuilder => {
-					editBuilder.insert(position, format(completion)); // Format the completion
+					editBuilder.insert(position, completion); // Format the completion
 				});
 			} catch (err) {
+				vscode.window.showErrorMessage(err.message);
 				console.error(
 					`An error occured while trying to query the CodeXR API: ${err}`
 				);
@@ -175,10 +195,6 @@ function activate(context) {
 	context.subscriptions.push(
 		createStatusBarItem('codexr.query', 'CodeXR', 'CodeXR')
 	);
-
-	if (!config.get('realtime')) return;
-
-	// TODO
 }
 
 module.exports = { activate, deactivate: () => {} };

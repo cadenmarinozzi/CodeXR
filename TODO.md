@@ -4,6 +4,7 @@ ex: function discreteFourierTransform(|cursor_here|) => function discreteFourier
 * Code rework
 * Realtime (Inline or another method)
 * Tests (UGHHHHHH)
+* Single line suggestions
 # Completed
 * Add support for python comments
 * Have the deployer scan each directory in the codebase for a "deploy-config.json" file that contains the script and envirpment variables to deploy withs
