@@ -55,9 +55,13 @@ function constructCompletionPrompt(body) {
  * @returns {string} - A string containing the base prompt and the language-specific context and query.
  */
 function constructSingleLineCompletion(body) {
-	const basePrompt = 'You are an AI Programmer. Generate the next line of code for the given request:\n\n// Request:\n// Language: javascript\nfunction fibonacci(n) {\n// Next Line:\n    if (n <= 1) return 1;\n\n// Request:\n// Language: python\n# Create a for loop from 1 to 100\n// Next Line:\nfor i in range(1, 100):\n\n// Request:\n';
+	const basePrompt =
+		'You are an AI Programmer. Generate the next line of code for the given request:\n\n// Request:\n// Language: javascript\nfunction fibonacci(n) {\n// Next Line:\n    if (n <= 1) return 1;\n\n// Request:\n// Language: python\n# Create a for loop from 1 to 100\n// Next Line:\nfor i in range(1, 100):\n\n// Request:\n';
 
-	return basePrompt + `// Language: ${body.language}\n${body.context}\n${body.query}\n// Next Line:\n`;
+	return (
+		basePrompt +
+		`// Language: ${body.language}\n${body.context}\n${body.query}\n// Next Line:\n`
+	);
 }
 
 /**
@@ -69,7 +73,9 @@ function constructSingleLineCompletion(body) {
  * @param {string} body.stop
  */
 async function queryOpenAI(body) {
-	const prompt = body.singleLine ? constructCompletionPrompt(body) : constructSingleLineCompletion(body);
+	const prompt = body.singleLine
+		? constructCompletionPrompt(body)
+		: constructSingleLineCompletion(body);
 	const nTokens = encode(prompt).length;
 	// Increment the user's token count and usage count
 

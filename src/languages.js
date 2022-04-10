@@ -69,8 +69,7 @@ const languages = {
 		function: 'fn'
 	},
 	c: {
-		comment: '//',
-
+		comment: '//'
 	},
 	cpp: {
 		comment: '//'

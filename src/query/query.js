@@ -24,7 +24,9 @@ async function queryOpenAI(request) {
 		prompt: request.query,
 		language: request.language,
 		context: request.context,
-		stop: request.singleLine ? ['// Request:', '// Language:', '// Next Line:', '\n\n'] : ['\n\n\n', '// Language:', '// Request:', '// Response:'],
+		stop: request.singleLine
+			? ['// Request:', '// Language:', '// Next Line:', '\n\n']
+			: ['\n\n\n', '// Language:', '// Request:', '// Response:'],
 		user: request.user,
 		singleLine: request.singleLine,
 		maxTokens: maxTokens

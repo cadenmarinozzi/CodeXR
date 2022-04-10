@@ -41,7 +41,7 @@ function getLanguageComment(code, language) {
  * @param {string} language - The language to be evaluated.
  * @return {boolean} Whether or not the code includes the function name.
  */
- function getLanguageFunction(code, language) {
+function getLanguageFunction(code, language) {
 	let languageDetails = languages[language];
 	if (!languageDetails) languageDetails = languages.default;
 
