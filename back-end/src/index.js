@@ -65,10 +65,15 @@ app.post('/query', async (req, res) => {
 
 		if (
 			!body ||
-			!body.promot ||
-			body.context === undefined || body.context === null ||
-			body.language === undefined || body.language === null ||
-			body.user === undefined || body.user === null || !isValidUser(body.user) ||
+			body.prompt === undefined ||
+			body.prompt === null ||
+			body.context === undefined ||
+			body.context === null ||
+			body.language === undefined ||
+			body.language === null ||
+			body.user === undefined ||
+			body.user === null ||
+			!isValidUser(body.user) ||
 			!body.maxTokens ||
 			!body.stop
 		) {

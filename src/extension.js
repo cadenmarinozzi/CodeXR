@@ -22,18 +22,18 @@ function getLineText(document, position) {
 	);
 }
 
-/**
- * @function getLanguageComment
- * @param {string} code - the code to check
- * @param {string} language - the language to check
- * @returns {boolean} - true if the code includes the comment for the given language, false otherwise
- */
-function getLanguageComment(code, language) {
-	let comment = languages[language].comment;
-	if (!comment) comment = languages.default;
+// /**
+//  * @function getLanguageComment
+//  * @param {string} code - the code to check
+//  * @param {string} language - the language to check
+//  * @returns {boolean} - true if the code includes the comment for the given language, false otherwise
+//  */
+// function getLanguageComment(code, language) {
+// 	let comment = languages[language].comment;
+// 	if (!comment) comment = languages.default;
 
-	return code.includes(comment);
-}
+// 	return code.includes(comment);
+// }
 
 /**
  * @param {document} The document to get the context from

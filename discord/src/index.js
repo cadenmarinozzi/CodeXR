@@ -22,10 +22,10 @@ async function getStatusChart() {
 	const statusChart = new QuickChart();
 	const statusData = await web.getStatusData();
 	// Get the last 7 days of data
-	const dates = Object.keys(statusData).slice(
-		statusData.length - 7,
-		statusData.length
-	);
+	const dates = Object.keys(statusData)
+		.slice(statusData.length - 7, statusData.length)
+		.map(date => date.substring(date.length - 2, date.length));
+
 	const data = Object.values(statusData).slice(
 		statusData.length - 7,
 		statusData.length
