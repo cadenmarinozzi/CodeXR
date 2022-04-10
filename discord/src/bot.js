@@ -24,7 +24,7 @@ async function getStatusChart() {
 	// Get the last 7 days of data
 	const dates = Object.keys(statusData)
 		.slice(statusData.length - 7, statusData.length)
-		.map(date => date.substring(date.length - 2, date.length));
+		.map(date => date.substring(date.length - 5, date.length - 2));
 
 	const data = Object.values(statusData).slice(
 		statusData.length - 7,

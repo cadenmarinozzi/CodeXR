@@ -100,6 +100,12 @@ app.post('/query', async (req, res) => {
 				200
 			)();
 
+			if (!response.data) {
+				res.status(500).send('Internal server error');
+
+				return;
+			}
+
 			res.status(200).json(response.data.choices);
 		} catch (err) {
 			console.error(err);

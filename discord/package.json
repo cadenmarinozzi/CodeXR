@@ -2,9 +2,9 @@
   "name": "discord",
   "version": "1.0.0",
   "description": "",
-  "main": "src/index.js",
+  "main": "src/bot.js",
   "scripts": {
-    "start": "node src/index.js"
+    "start": "node src/bot.js"
   },
   "author": "nekumelon",
   "license": "MIT",

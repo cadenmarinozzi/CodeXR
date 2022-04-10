@@ -38,13 +38,26 @@ function trimPrompt(prompt, maxTokens) {
  * @param {string} language - The language for the response
  * @returns {string} - The completed prompt
  */
-function constructCompletionPrompt(context, query, language) {
+function constructCompletionPrompt(body) {
 	const basePrompt = `// Language: javascript\n\n// Request:\n// Create a for loop from 12724 to 889005, and print the current number\n\n// Response:\nfor (let i = 12724; i < 889005; i++) {\n    console.log(i);\n}\n\n// Language: python\n\n// Request:\ndef fibo\n\n// Response:\nnacci(n):\n    if (n == 0):\n        return 0;\n\n    if (n <= 2):\n        return 1;\n \n    return fibonacci(n - 1) + fibonacci(n - 2);\n// Language: javascript\n\n// Request:\nfunction binarySea\n\n// Response:\nrch(array, target) {\n    let low = 0;\n    let high = target.length;\n    \n    while (low <= high) {\n        const middle = Math.floor(low + (high - low) / 2);\n        const middleValue = array[middle]'\n        \n        if (middleValue === target)\n            return middle;\n            \n        if (middleValue > target)\n            low = middle + 1;\n        else\n            high = middle - 1;\n    }\n    \n    return -1;\n}\n\n`;
 
 	return (
 		basePrompt +
-		`// Language: ${language}\n\n// Request:\n${context}\n${query}\n\n// Response:\n`
+		`// Language: ${body.language}\n\n// Request:\n${body.context}\n${body.query}\n\n// Response:\n`
 	);
+}
+
+/**
+ * @function constructSingleLineCompletion
+ * @param {string} context - The context of the code request.
+ * @param {string} query - The query for the next line of code.
+ * @param {string} language - The programming language for the request.
+ * @returns {string} - A string containing the base prompt and the language-specific context and query.
+ */
+function constructSingleLineCompletion(body) {
+	const basePrompt = 'You are an AI Programmer. Generate the next line of code for the given request:\n\n// Request:\n// Language: javascript\nfunction fibonacci(n) {\n// Next Line:\n    if (n <= 1) return 1;\n\n// Request:\n// Language: python\n# Create a for loop from 1 to 100\n// Next Line:\nfor i in range(1, 100):\n\n// Request:\n';
+
+	return basePrompt + `// Language: ${body.language}\n${body.context}\n${body.query}\n// Next Line:\n`;
 }
 
 /**
@@ -56,11 +69,7 @@ function constructCompletionPrompt(context, query, language) {
  * @param {string} body.stop
  */
 async function queryOpenAI(body) {
-	const prompt = constructCompletionPrompt(
-		body.context,
-		body.prompt,
-		body.language
-	);
+	const prompt = body.singleLine ? constructCompletionPrompt(body) : constructSingleLineCompletion(body);
 	const nTokens = encode(prompt).length;
 	// Increment the user's token count and usage count
 

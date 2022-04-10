@@ -22,18 +22,31 @@ function getLineText(document, position) {
 	);
 }
 
-// /**
-//  * @function getLanguageComment
-//  * @param {string} code - the code to check
-//  * @param {string} language - the language to check
-//  * @returns {boolean} - true if the code includes the comment for the given language, false otherwise
-//  */
-// function getLanguageComment(code, language) {
-// 	let comment = languages[language].comment;
-// 	if (!comment) comment = languages.default;
+/**
+ * @function getLanguageComment
+ * @param {string} code - the code to check
+ * @param {string} language - the language to check
+ * @returns {boolean} - true if the code includes the comment for the given language, false otherwise
+ */
+function getLanguageComment(code, language) {
+	let languageDetails = languages[language];
+	if (!languageDetails) languageDetails = languages.default;
 
-// 	return code.includes(comment);
-// }
+	return code.includes(languageDetails.comment);
+}
+
+/**
+ * Gets a language function.
+ * @param {string} code - The code to be evaluated.
+ * @param {string} language - The language to be evaluated.
+ * @return {boolean} Whether or not the code includes the function name.
+ */
+ function getLanguageFunction(code, language) {
+	let languageDetails = languages[language];
+	if (!languageDetails) languageDetails = languages.default;
+
+	return code.includes(languageDetails.function);
+}
 
 /**
  * @param {document} The document to get the context from
@@ -116,7 +129,8 @@ async function getCompletions(context) {
 		context: contextCode,
 		user: user,
 		language: document.languageId,
-		query: queryText
+		query: queryText,
+		singleLine: getLanguageFunction(queryText, document.languageId)
 	});
 
 	const completion = completions[0];

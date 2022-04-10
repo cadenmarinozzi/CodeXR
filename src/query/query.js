@@ -17,15 +17,16 @@ const config = vscode.workspace.getConfiguration('codexr');
  * @param {string} language - The language
  * @returns {Promise} - The response from the server
  */
-async function queryOpenAI(context, query, user, language) {
+async function queryOpenAI(request) {
 	const maxTokens = config.get('max_tokens');
 
 	return await axios.post('https://codexr.herokuapp.com/query', {
-		prompt: query,
-		language: language,
-		context: context,
-		stop: ['\n\n\n', '// Language:', '// Request:', '// Response:'],
-		user: user,
+		prompt: request.query,
+		language: request.language,
+		context: request.context,
+		stop: request.singleLine ? ['// Request:', '// Language:', '// Next Line:', '\n\n'] : ['\n\n\n', '// Language:', '// Request:', '// Response:'],
+		user: request.user,
+		singleLine: request.singleLine,
 		maxTokens: maxTokens
 	});
 }
@@ -57,12 +58,7 @@ function removeQuery(input, query) {
  * @returns {Promise<Array>}
  */
 async function query(request) {
-	const response = await queryOpenAI(
-		request.context,
-		request.query,
-		request.user,
-		request.language
-	);
+	const response = await queryOpenAI(request);
 	// Query OpenAI
 
 	// If there are no choices, return an empty array

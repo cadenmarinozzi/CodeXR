@@ -5,10 +5,12 @@
 
 const languages = {
 	javascript: {
-		comment: '//'
+		comment: '//',
+		function: 'function'
 	},
 	jsx: {
-		comment: '//'
+		comment: '//',
+		function: 'function'
 	},
 	html: {
 		comment: '<!--'
@@ -35,13 +37,16 @@ const languages = {
 		comment: '#'
 	},
 	vue: {
-		comment: '<!--'
+		comment: '<!--',
+		function: 'function'
 	},
 	angular: {
-		comment: '<!--'
+		comment: '<!--',
+		function: 'function'
 	},
 	typescript: {
-		comment: '//'
+		comment: '//',
+		function: 'function'
 	},
 	flow: {
 		comment: '//'
@@ -56,13 +61,16 @@ const languages = {
 		comment: '<!--'
 	},
 	go: {
-		comment: '//'
+		comment: '//',
+		function: 'func'
 	},
 	rust: {
-		comment: '//'
+		comment: '//',
+		function: 'fn'
 	},
 	c: {
-		comment: '//'
+		comment: '//',
+
 	},
 	cpp: {
 		comment: '//'
@@ -80,13 +88,16 @@ const languages = {
 		comment: '//'
 	},
 	python: {
-		comment: '#'
+		comment: '#',
+		function: 'def'
 	},
 	ruby: {
-		comment: '#'
+		comment: '#',
+		function: 'def'
 	},
 	swift: {
-		comment: '//'
+		comment: '//',
+		function: 'func'
 	},
 	objectivec: {
 		comment: '//'
@@ -95,10 +106,12 @@ const languages = {
 		comment: '//'
 	},
 	lua: {
-		comment: '--'
+		comment: '--',
+		function: 'function'
 	},
 	haskell: {
-		comment: '--'
+		comment: '--',
+		function: 'function'
 	},
 	clojure: {
 		comment: ';'
@@ -116,8 +129,9 @@ const languages = {
 		comment: '//'
 	},
 	default: {
-		comment: '//'
+		comment: '//',
+		function: 'function'
 	}
 };
 
-module.exports = { languages };
+module.exports = languages;
