@@ -84,7 +84,7 @@ async function queryOpenAI(body) {
 		// Query OpenAI
 		usage: 1
 	});
-
+	console.log(prompt, body.stop, body.user, body.maxTokens);
 	return await openai.createCompletion('code-cushman-001', {
 		prompt: prompt,
 		temperature: 0,
