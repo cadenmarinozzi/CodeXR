@@ -172,6 +172,12 @@ function createStatusBarItem(command, text) {
 }
 
 function activate(context) {
+	const statusBarItem = createStatusBarItem(
+		'codexr.query',
+		'CodeXR',
+		'CodeXR'
+	);
+
 	const queryDisposable = vscode.commands.registerCommand(
 		'codexr.query',
 		async () => {
@@ -182,8 +188,18 @@ function activate(context) {
 				const document = editor.document;
 				const position = editor.selection.active;
 
+				statusBarItem.text = '$(sync~spin)';
+
 				let completion = await getCompletions(context);
 				if (!completion) return;
+
+				if (completion.finish_reason === 'length') {
+					vscode.window.showInformationMessage(
+						'The query is too long!'
+					);
+
+					return;
+				}
 
 				if (
 					formatter.languages.includes(
@@ -194,6 +210,7 @@ function activate(context) {
 
 				// Insert the code into the editor
 				editor.edit(editBuilder => {
+					statusBarItem.text = 'CodeXR';
 					editBuilder.insert(position, completion); // Format the completion
 				});
 			} catch (err) {
@@ -205,10 +222,8 @@ function activate(context) {
 		}
 	);
 
+	context.subscriptions.push(statusBarItem);
 	context.subscriptions.push(queryDisposable);
-	context.subscriptions.push(
-		createStatusBarItem('codexr.query', 'CodeXR', 'CodeXR')
-	);
 }
 
 module.exports = { activate, deactivate: () => {} };

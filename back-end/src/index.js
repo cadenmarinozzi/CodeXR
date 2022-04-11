@@ -56,7 +56,7 @@ app.get('/', async (req, res) => {
 app.post('/query', async (req, res) => {
 	try {
 		if (requests >= requestsPerMinute) {
-			res.status(429).send('Too many requests');
+			res.status(429).end('Too many requests');
 
 			return;
 		}
@@ -77,7 +77,7 @@ app.post('/query', async (req, res) => {
 			!body.maxTokens ||
 			!body.stop
 		) {
-			res.status(400).send('Bad request');
+			res.status(400).end('Bad request');
 
 			return;
 		}
@@ -87,7 +87,7 @@ app.post('/query', async (req, res) => {
 		}
 
 		if (await web.userBlacklisted(body.user)) {
-			res.status(403).send('User blacklisted');
+			res.status(403).end('User blacklisted');
 
 			return;
 		}
@@ -101,7 +101,8 @@ app.post('/query', async (req, res) => {
 			)();
 
 			if (!response.data) {
-				res.status(500).send('Internal server error');
+				console.log('Internal server error');
+				res.status(500).end('Internal server error. No response data!');
 
 				return;
 			}
@@ -110,11 +111,11 @@ app.post('/query', async (req, res) => {
 		} catch (err) {
 			console.error(err);
 			web.incrementStatusData(getDate());
-			res.status(500).send('Internal server error');
+			res.status(500).end(`Internal server error ${err}`);
 		}
 	} catch (err) {
 		console.error(err);
-		res.status(500).send(`Internal server error`);
+		res.status(500).end(`Internal server error ${err}`);
 	}
 });
 
