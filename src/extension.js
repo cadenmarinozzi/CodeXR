@@ -42,7 +42,7 @@ function getLanguageComment(code, language) {
  * @return {boolean} Whether or not the code includes the function name.
  */
 function getLanguageFunction(code, language) {
-	let languageDetails = languages[language];
+	let languageDetails = languages[language.toLowerCase()];
 	if (!languageDetails) languageDetails = languages.default;
 
 	return code.includes(languageDetails.function);
@@ -120,8 +120,8 @@ async function getCompletions(context) {
 	const document = editor.document;
 	const cursorPosition = editor.selection.active;
 	const queryText = getLineText(document, cursorPosition);
-	const cachedCompletion = cache.getCachedCompletion(context, queryText);
 
+	const cachedCompletion = cache.getCachedCompletion(context, queryText);
 	if (cachedCompletion) return cachedCompletion;
 
 	const contextCode = getContext(document, cursorPosition);
@@ -129,11 +129,10 @@ async function getCompletions(context) {
 		context: contextCode,
 		user: user,
 		language: document.languageId,
-		query: queryText,
-		singleLine: getLanguageFunction(queryText, document.languageId)
+		query: queryText
 	});
 
-	const completion = completions[0];
+	let completion = completions[0];
 	cache.cacheCompletion(context, queryText, completion);
 
 	return completion;
@@ -205,8 +204,11 @@ function activate(context) {
 					formatter.languages.includes(
 						document.languageId.toLowerCase()
 					)
-				)
-					completion = formatter.prettier(completion);
+				) {
+					try {
+						completion = formatter.prettier(completion);
+					} catch (err) {}
+				}
 
 				// Insert the code into the editor
 				editor.edit(editBuilder => {

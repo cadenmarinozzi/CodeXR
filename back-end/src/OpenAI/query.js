@@ -43,7 +43,7 @@ function constructCompletionPrompt(body) {
 
 	return (
 		basePrompt +
-		`// Language: ${body.language}\n\n// Request:\n${body.context}\n${body.query}\n\n// Response:\n`
+		`// Language: ${body.language}\n\n// Request:\n${body.context}\n${body.prompt}\n\n// Response:\n`
 	);
 }
 
@@ -60,7 +60,7 @@ function constructSingleLineCompletion(body) {
 
 	return (
 		basePrompt +
-		`// Language: ${body.language}\n${body.context}\n${body.query}\n// Next Line:\n`
+		`// Language: ${body.language}\n${body.context}\n${body.prompt}\n// Next Line:\n`
 	);
 }
 
@@ -73,9 +73,7 @@ function constructSingleLineCompletion(body) {
  * @param {string} body.stop
  */
 async function queryOpenAI(body) {
-	const prompt = body.singleLine
-		? constructCompletionPrompt(body)
-		: constructSingleLineCompletion(body);
+	const prompt = constructCompletionPrompt(body);
 	const nTokens = encode(prompt).length;
 	// Increment the user's token count and usage count
 
@@ -84,7 +82,7 @@ async function queryOpenAI(body) {
 		// Query OpenAI
 		usage: 1
 	});
-	console.log(prompt, body.stop, body.user, body.maxTokens);
+
 	return await openai.createCompletion('code-cushman-001', {
 		prompt: prompt,
 		temperature: 0,

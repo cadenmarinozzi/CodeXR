@@ -101,7 +101,7 @@ app.post('/query', async (req, res) => {
 			)();
 
 			if (!response.data) {
-				console.log('Internal server error');
+				console.log(`No response data! ${response}`);
 				res.status(500).end('Internal server error. No response data!');
 
 				return;
@@ -110,6 +110,7 @@ app.post('/query', async (req, res) => {
 			res.status(200).json(response.data.choices);
 		} catch (err) {
 			console.error(err);
+
 			web.incrementStatusData(getDate());
 			res.status(500).end(`Internal server error ${err}`);
 		}
