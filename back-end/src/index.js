@@ -116,7 +116,7 @@ app.post('/query', async (req, res) => {
 			// 	await web.beginStatusData(date);
 
 			// web.incrementStatusData(date);
-			res.status(500).end(`Internal server error ${err}`);
+			res.status(500).end(`Internal server error`);
 		}
 	} catch (err) {
 		// const date = getDate();
@@ -125,7 +125,7 @@ app.post('/query', async (req, res) => {
 
 		// web.incrementStatusData(date);
 		console.error(err);
-		res.status(500).end(`Internal server error ${err}`);
+		res.status(500).end(`Internal server error`);
 	}
 });
 

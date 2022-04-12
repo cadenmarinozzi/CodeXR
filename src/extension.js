@@ -161,7 +161,7 @@ function createCompletionsList(completion) {
 	completionItem.insertText = completion;
 	completionItem.preselect = true;
 
-	completionItem.completionItems.push(completionItem);
+	completionItems.push(completionItem);
 
 	return new vscode.CompletionList(completionItems);
 }
