@@ -21,3 +21,8 @@ Reworked the prompt.
 Automatically check the status of the back-end when the statusChart is sent every hour.
 * April 8, 2022 | 4:58 PM
 Moved the base prompt to the back-end
+* April 9,10 | UNDOCUMENTED
+* April 11 | 7:41 PM
+Fixed support for python comments by sending the comment token to the back-end
+Added a clear completion cache button
+Changed the completion cache to a dictionary

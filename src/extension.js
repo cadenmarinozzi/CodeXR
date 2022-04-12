@@ -100,7 +100,7 @@ async function getCompletions(context) {
 
 	const contextCode = getContext(document, cursorPosition);
 	const completions = await query({
-		context: contextCode,
+		context: contextCode.trim(),
 		user: user,
 		language: document.languageId,
 		query: queryText,

@@ -52,6 +52,19 @@ async function incrementStatusData(date) {
 }
 
 /**
+ * @async
+ * @function beginStatusData
+ * @param {string} date - a string in the format "yyyy-mm-dd"
+ * @description Updates the statusUpdates object with the given date and a value of 0.
+ */
+async function beginStatusData(date) {
+	let statusUpdates = {};
+
+	statusUpdates[date] = 0;
+	await update(statusDataRef, statusUpdates);
+}
+
+/**
  * Reads the data of a user with the given key
  *
  * @param {string} user The user's id
@@ -137,5 +150,6 @@ module.exports = {
 	userBlacklisted,
 	getStatusData,
 	incrementStatusData,
-	beginUser
+	beginUser,
+	beginStatusData
 };

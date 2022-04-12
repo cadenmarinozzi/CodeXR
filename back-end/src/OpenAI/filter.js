@@ -3,6 +3,8 @@
 	License...: MIT (Check LICENSE)
 */
 
+const { refFromURL } = require('firebase/database');
+
 const toxicThreshold = -0.355;
 const labels = ['0', '1', '2'];
 
@@ -50,30 +52,37 @@ class Filter {
 	 * @returns {boolean} true if the string is safe, false otherwise
 	 */
 	async check(input) {
-		/*
-        0 - safe
-        1 - sensitive
-        2 - unsafe
-        */
-		const response = await this.openai.createCompletion(
-			'content-filter-alpha',
-			{
-				prompt: `<|endoftext|>${input}\n--\nLabel:`,
-				temperature: 0,
-				max_tokens: 1,
-				top_p: 0,
-				frequency_penalty: 0,
-				presence_penalty: 0,
-				logprobs: 10
+		try {
+			/*
+			0 - safe
+			1 - sensitive
+			2 - unsafe
+			*/
+			const response = await this.openai.createCompletion(
+				'content-filter-alpha',
+				{
+					prompt: `<|endoftext|>${input}\n--\nLabel:`,
+					temperature: 0,
+					max_tokens: 1,
+					top_p: 0,
+					frequency_penalty: 0,
+					presence_penalty: 0,
+					logprobs: 10
+				}
+			);
+
+			if (!response.data.choices) return true;
+
+			const label = this.handleLabel(response);
+			if (labels.includes(label)) return label === '0';
+
+			return false;
+		} catch (err) {
+			if (err.status === 429) {
+				// Rate limit.
+				return false; // We assume the request is false to prevent exploitation.
 			}
-		);
-
-		if (!response.data.choices) return true;
-
-		const label = this.handleLabel(response);
-		if (labels.includes(label)) return label === '0';
-
-		return false;
+		}
 	}
 }
 

@@ -97,13 +97,10 @@ app.post('/query', async (req, res) => {
 		requests++;
 
 		try {
-			const response = await debounce(
-				async () => await query(body),
-				200
-			)();
+			let response = await query(body);
 
 			if (!response.data) {
-				console.log(`No response data!`);
+				console.log('No response data!');
 				res.status(500).end('Internal server error. No response data!');
 
 				return;
@@ -112,11 +109,20 @@ app.post('/query', async (req, res) => {
 			res.status(200).json(response.data.choices);
 		} catch (err) {
 			console.error(err);
+			// const date = getDate();
 
-			web.incrementStatusData(getDate());
+			// if (!(await web.getStatusData(date)))
+			// 	await web.beginStatusData(date);
+
+			// web.incrementStatusData(date);
 			res.status(500).end(`Internal server error ${err}`);
 		}
 	} catch (err) {
+		// const date = getDate();
+
+		// if (!(await web.getStatusData(date))) await web.beginStatusData(date);
+
+		// web.incrementStatusData(date);
 		console.error(err);
 		res.status(500).end(`Internal server error ${err}`);
 	}
