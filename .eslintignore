@@ -6,8 +6,6 @@
 **/.vsix
 **/dist
 **/site
-**/back-end
-**/deployer
 **/discord
 **/.github
 **/.firebase

@@ -10,6 +10,7 @@ const tinygradient = require('tinygradient');
 const formatter = require('./formatter');
 const cache = require('./completionCache');
 const { getLanguageComment } = require('./languages');
+const debounce = require('./debounce');
 
 /**
  * @param {Document} document
@@ -99,16 +100,19 @@ async function getCompletions(context) {
 	if (cachedCompletion) return cachedCompletion;
 
 	const contextCode = getContext(document, cursorPosition);
-	const completions = await query({
-		context: contextCode.trim(),
-		user: user,
-		language: document.languageId,
-		query: queryText,
-		comment: getLanguageComment(document.languageId)
-	});
+	const completions = await debounce(
+		async () =>
+			await query({
+				context: contextCode.trim(),
+				user: user,
+				language: document.languageId,
+				query: queryText,
+				comment: getLanguageComment(document.languageId)
+			}),
+		500
+	)();
 
 	let completion = completions[0];
-
 	if (completion) cache.cacheCompletion(context, queryText, completion);
 
 	return completion;
@@ -144,6 +148,22 @@ function createStatusBarItem(command, text) {
 	update();
 
 	return statusBarItem;
+}
+
+function createCompletionsList(completion) {
+	let completionItems = [];
+
+	let completionItem = new vscode.CompletionItem(
+		completion.split('\n')[0],
+		vscode.CompletionItemKind.Snippet
+	);
+	completionItem.sortText = '00';
+	completionItem.insertText = completion;
+	completionItem.preselect = true;
+
+	completionItem.completionItems.push(completionItem);
+
+	return new vscode.CompletionList(completionItems);
 }
 
 function activate(context) {
@@ -218,6 +238,53 @@ function activate(context) {
 		}
 	);
 
+	const completionItemProvider =
+		vscode.languages.registerCompletionItemProvider(
+			{ pattern: '**' },
+			{
+				provideCompletionItems: async document => {
+					try {
+						if (!cache.completionCacheExists(context)) {
+							cache.initCompletionsCache(context);
+						}
+
+						statusBarItem.text = '$(sync~spin)';
+
+						let completion = await getCompletions(context);
+						if (!completion) return;
+
+						if (completion.finish_reason === 'length') {
+							vscode.window.showInformationMessage(
+								'The query is too long!'
+							);
+
+							return;
+						}
+
+						if (
+							formatter.languages.includes(
+								document.languageId.toLowerCase()
+							)
+						) {
+							try {
+								completion = formatter.prettier(completion);
+							} catch (err) {}
+						}
+
+						statusBarItem.text = 'CodeXR';
+
+						return createCompletionsList(completion);
+					} catch (err) {
+						vscode.window.showErrorMessage(err.message);
+						console.error(
+							`An error occured while trying to query the CodeXR API: ${err}`
+						);
+					}
+				}
+			}
+		);
+
+	context.subscriptions.push(completionItemProvider);
 	context.subscriptions.push(infoDisposable);
 	context.subscriptions.push(statusBarItem);
 	context.subscriptions.push(queryDisposable);

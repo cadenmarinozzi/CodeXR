@@ -39,11 +39,13 @@ function trimPrompt(prompt, maxTokens) {
  * @returns {string} - The completed prompt
  */
 function constructCompletionPrompt(body) {
-	const basePrompt = `// Request:\n// Language: javascript\n// Create a for loop from 12724 to 889005, and print the current number\n\n// Response:\nfor (let i = 12724; i < 889005; i++) {\n    console.log(i);\n}\n\n// Request:\n# Language: python\ndef fibo\n\n// Response:\nnacci(n):\n    if (n == 0):\n        return 0;\n\n    if (n <= 2):\n        return 1;\n \n    return fibonacci(n - 1) + fibonacci(n - 2);\n\n// Request:\n// Language: javascript\nfunction binarySearch(array,\n\n// Response:\n target) {\n    let low = 0;\n    let high = target.length;\n    \n    while (low <= high) {\n        const middle = Math.floor(low + (high - low) / 2);\n        const middleValue = array[middle]'\n        \n        if (middleValue === target)\n            return middle;\n            \n        if (middleValue > target)\n            low = middle + 1;\n        else\n            high = middle - 1;\n    }\n    \n    return -1;\n}\n\n// Request:\n# Language: python\ndef discreteFourierTransform(\n\n// Response:\nsignal):\n    N = len(signal)\n    if (N == 1):\n        return signal\n\n    even = discreteFourierTransform(signal[0::2])\n    odd = discreteFourierTransform(signal[1::2])\n\n    T = [exp(-2j * pi * k / N) * odd[k] for k in range(N // 2)]\n\n    return [even[k] + T[k] for k in range(N // 2)] + \\\n           [even[k] - T[k] for k in range(N // 2)]\n\n // Request:\n`;
+	const basePrompt = `// Request:\n// Language: javascript\n// Create a for loop from 12724 to 889005, and print the current number\n\n// Response:\nfor (let i = 12724; i < 889005; i++) {\n    console.log(i);\n}\n\n// Request:\n# Language: python\ndef fibo\n\n// Response:\nnacci(n):\n    if (n == 0):\n        return 0;\n\n    if (n <= 2):\n        return 1;\n \n    return fibonacci(n - 1) + fibonacci(n - 2);\n\n// Request:\n// Language: javascript\nfunction binarySearch(array,\n\n// Response:\n target) {\n    let low = 0;\n    let high = target.length;\n    \n    while (low <= high) {\n        const middle = Math.floor(low + (high - low) / 2);\n        const middleValue = array[middle]'\n        \n        if (middleValue === target)\n            return middle;\n            \n        if (middleValue > target)\n            low = middle + 1;\n        else\n            high = middle - 1;\n    }\n    \n    return -1;\n}\n\n// Request:\n# Language: python\ndef discreteFourierTransform(\n\n// Response:\nsignal):\n    N = len(signal)\n    if (N == 1):\n        return signal\n\n    even = discreteFourierTransform(signal[0::2])\n    odd = discreteFourierTransform(signal[1::2])\n\n    T = [exp(-2j * pi * k / N) * odd[k] for k in range(N // 2)]\n\n    return [even[k] + T[k] for k in range(N // 2)] + \\\n           [even[k] - T[k] for k in range(N // 2)]\n\n// Request:\n`;
 
 	return (
 		basePrompt +
-		`${body.comment} Language: ${body.language}\n${body.context}\n${body.prompt}\n\n// Response:\n`
+		`${body.comment} Language: ${body.language}\n${
+			body.context === '' ? '' : body.context + '\n' // eesh
+		}${body.prompt}\n\n// Response:`
 	);
 }
 
@@ -84,16 +86,17 @@ async function queryOpenAI(body) {
 	});
 
 	const request = {
+		organization: 'org-HWPmQsbFSGQ2l8uDPvP7YdJs',
 		prompt: prompt,
 		temperature: 0,
+		top_p: 1,
 		max_tokens: clamp(MAX_TOKENS - nTokens, 1, body.maxTokens),
 		stop: body.stop,
 		user: body.user,
 		frequency_penalty: 0.34,
+		presence_penalty: 0,
 		best_of: 3
 	};
-
-	console.log(JSON.stringify(request));
 
 	return await openai.createCompletion('code-cushman-001', request);
 }
@@ -111,9 +114,11 @@ async function query(body) {
 	const text = response.data.choices[0].text; // Get the text from the response
 	await web.incrementUserData(body.user, { tokens: encode(text).length }); // Increment the tokens value the length of the text
 
-	if (await filter.check(text)) return response;
+	// if (await filter.check(text)) {
+	return response;
+	// }
 
-	return {};
+	// return {};
 }
 
 module.exports = query;

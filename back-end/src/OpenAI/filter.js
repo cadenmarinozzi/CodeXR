@@ -3,8 +3,6 @@
 	License...: MIT (Check LICENSE)
 */
 
-const { refFromURL } = require('firebase/database');
-
 const toxicThreshold = -0.355;
 const labels = ['0', '1', '2'];
 
@@ -71,6 +69,15 @@ class Filter {
 				}
 			);
 
+			if (response.status === 429) {
+				console.log('Rate limit exceeded for content-filter-alpha!');
+
+				// Rate limit.
+				return true; // We assume the request is false to prevent exploitation.
+
+				// ^ For now this is set to true until I get the rate limit sorted out
+			}
+
 			if (!response.data.choices) return true;
 
 			const label = this.handleLabel(response);
@@ -78,10 +85,9 @@ class Filter {
 
 			return false;
 		} catch (err) {
-			if (err.status === 429) {
-				// Rate limit.
-				return false; // We assume the request is false to prevent exploitation.
-			}
+			console.error(`An error occured while filtering the input ${err}`);
+
+			return true; // Again, this should be false but for now it's true until prod
 		}
 	}
 }

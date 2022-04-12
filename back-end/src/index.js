@@ -6,9 +6,9 @@
 const express = require('express');
 const app = express();
 const query = require('./OpenAI/query');
-const debounce = require('./debounce');
 const web = require('./web');
 const { validate: uuidIsValid, version: uuidVersion } = require('uuid');
+const debounce = require('./debounce');
 
 app.use(express.json());
 
@@ -61,6 +61,8 @@ app.post('/query', async (req, res) => {
 			return;
 		}
 
+		requests++;
+
 		const body = req.body;
 
 		if (
@@ -94,12 +96,11 @@ app.post('/query', async (req, res) => {
 			return;
 		}
 
-		requests++;
-
 		try {
-			let response = await query(body);
+			let response = await debounce(async () => await query(body), 500)();
 
 			if (!response.data) {
+				// Didn't pass the filter
 				console.log('No response data!');
 				res.status(500).end('Internal server error. No response data!');
 
