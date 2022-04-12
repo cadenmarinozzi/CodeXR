@@ -8,7 +8,8 @@
     "url": "https://github.com/nekumelon/CodeXR"
   },
   "scripts": {
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "deploy": "git commit -am \"heroku-deploy\" && git push heroku main"
   },
   "author": "nekumelon",
   "license": "MIT",

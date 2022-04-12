@@ -75,7 +75,9 @@ app.post('/query', async (req, res) => {
 			body.user === null ||
 			!isValidUser(body.user) ||
 			!body.maxTokens ||
-			!body.stop
+			!body.stop ||
+			body.comment === undefined ||
+			body.comment === null
 		) {
 			res.status(400).end('Bad request');
 
@@ -101,7 +103,7 @@ app.post('/query', async (req, res) => {
 			)();
 
 			if (!response.data) {
-				console.log(`No response data! ${response}`);
+				console.log(`No response data!`);
 				res.status(500).end('Internal server error. No response data!');
 
 				return;

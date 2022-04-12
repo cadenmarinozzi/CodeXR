@@ -39,11 +39,11 @@ function trimPrompt(prompt, maxTokens) {
  * @returns {string} - The completed prompt
  */
 function constructCompletionPrompt(body) {
-	const basePrompt = `// Language: javascript\n\n// Request:\n// Create a for loop from 12724 to 889005, and print the current number\n\n// Response:\nfor (let i = 12724; i < 889005; i++) {\n    console.log(i);\n}\n\n// Language: python\n\n// Request:\ndef fibo\n\n// Response:\nnacci(n):\n    if (n == 0):\n        return 0;\n\n    if (n <= 2):\n        return 1;\n \n    return fibonacci(n - 1) + fibonacci(n - 2);\n// Language: javascript\n\n// Request:\nfunction binarySea\n\n// Response:\nrch(array, target) {\n    let low = 0;\n    let high = target.length;\n    \n    while (low <= high) {\n        const middle = Math.floor(low + (high - low) / 2);\n        const middleValue = array[middle]'\n        \n        if (middleValue === target)\n            return middle;\n            \n        if (middleValue > target)\n            low = middle + 1;\n        else\n            high = middle - 1;\n    }\n    \n    return -1;\n}\n\n`;
+	const basePrompt = `// Request:\n// Language: javascript\n// Create a for loop from 12724 to 889005, and print the current number\n\n// Response:\nfor (let i = 12724; i < 889005; i++) {\n    console.log(i);\n}\n\n// Request:\n# Language: python\ndef fibo\n\n// Response:\nnacci(n):\n    if (n == 0):\n        return 0;\n\n    if (n <= 2):\n        return 1;\n \n    return fibonacci(n - 1) + fibonacci(n - 2);\n\n// Request:\n// Language: javascript\nfunction binarySearch(array,\n\n// Response:\n target) {\n    let low = 0;\n    let high = target.length;\n    \n    while (low <= high) {\n        const middle = Math.floor(low + (high - low) / 2);\n        const middleValue = array[middle]'\n        \n        if (middleValue === target)\n            return middle;\n            \n        if (middleValue > target)\n            low = middle + 1;\n        else\n            high = middle - 1;\n    }\n    \n    return -1;\n}\n\n// Request:\n`;
 
 	return (
 		basePrompt +
-		`// Language: ${body.language}\n\n// Request:\n${body.context}\n${body.prompt}\n\n// Response:\n`
+		`${body.comment} Language: ${body.language}\n${body.context}\n\n${body.prompt}\n\n// Response:\n`
 	);
 }
 
@@ -83,14 +83,19 @@ async function queryOpenAI(body) {
 		usage: 1
 	});
 
-	return await openai.createCompletion('code-cushman-001', {
+	const request = {
 		prompt: prompt,
 		temperature: 0,
 		max_tokens: clamp(MAX_TOKENS - nTokens, 1, body.maxTokens),
 		stop: body.stop,
 		user: body.user,
-		frequency_penalty: 0.34
-	});
+		frequency_penalty: 0.34,
+		best_of: 3
+	};
+
+	console.log(JSON.stringify(request));
+
+	return await openai.createCompletion('code-cushman-001', request);
 }
 
 /**

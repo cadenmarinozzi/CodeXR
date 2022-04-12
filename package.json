@@ -50,6 +50,10 @@
       {
         "command": "codexr.query",
         "title": "Query"
+      },
+      {
+        "command": "codexr.info",
+        "title": "Info"
       }
     ],
     "keybindings": [

@@ -39,6 +39,8 @@ async function getStatusData() {
  * @description Updates the statusUpdates object with the given date and a value of 0.
  */
 async function beginStatusData(date) {
+	let statusUpdates = {};
+
 	statusUpdates[date] = 0;
 	update(statusDataRef, statusUpdates);
 }

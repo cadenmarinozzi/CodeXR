@@ -11,10 +11,6 @@ const config = vscode.workspace.getConfiguration('codexr');
 /**
  * @async
  * @function queryOpenAI
- * @param {string} context - The context of the query
- * @param {string} query - The query
- * @param {string} user - The user
- * @param {string} language - The language
  * @returns {Promise} - The response from the server
  */
 async function queryOpenAI(request) {
@@ -24,12 +20,11 @@ async function queryOpenAI(request) {
 		prompt: request.query,
 		language: request.language,
 		context: request.context,
-		stop: request.singleLine
-			? ['// Request:', '// Language:', '// Next Line:', '\n\n']
-			: ['\n\n\n', '// Language:', '// Request:', '// Response:'],
+		stop: ['\n\n\n', '// Request:', '// Response:'],
 		user: request.user,
 		singleLine: request.singleLine,
-		maxTokens: maxTokens
+		maxTokens: maxTokens,
+		comment: request.comment
 	});
 }
 
@@ -53,10 +48,6 @@ function removeQuery(input, query) {
 /**
  * @async
  * @param {object} request
- * @param {string} request.context
- * @param {string} request.query
- * @param {string} request.user
- * @param {string} request.language
  * @returns {Promise<Array>}
  */
 async function query(request) {

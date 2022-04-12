@@ -1,6 +1,6 @@
 {
     "name": "back-end",
-    "command": "cd ../back-end && git commit -am \"heroku-deploy\" && git push heroku main",
+    "command": "cd ../back-end && npm run deploy",
     "logs": true,
     "activationFiles": [
         "back-end/"

@@ -9,7 +9,7 @@ const { v4: uuid4 } = require('uuid');
 const tinygradient = require('tinygradient');
 const formatter = require('./formatter');
 const cache = require('./completionCache');
-const languages = require('./languages');
+const { getLanguageComment } = require('./languages');
 
 /**
  * @param {Document} document
@@ -20,32 +20,6 @@ function getLineText(document, position) {
 	return document.getText(
 		new vscode.Range(position.with(undefined, 0), position)
 	);
-}
-
-/**
- * @function getLanguageComment
- * @param {string} code - the code to check
- * @param {string} language - the language to check
- * @returns {boolean} - true if the code includes the comment for the given language, false otherwise
- */
-function getLanguageComment(code, language) {
-	let languageDetails = languages[language];
-	if (!languageDetails) languageDetails = languages.default;
-
-	return code.includes(languageDetails.comment);
-}
-
-/**
- * Gets a language function.
- * @param {string} code - The code to be evaluated.
- * @param {string} language - The language to be evaluated.
- * @return {boolean} Whether or not the code includes the function name.
- */
-function getLanguageFunction(code, language) {
-	let languageDetails = languages[language.toLowerCase()];
-	if (!languageDetails) languageDetails = languages.default;
-
-	return code.includes(languageDetails.function);
 }
 
 /**
@@ -129,11 +103,13 @@ async function getCompletions(context) {
 		context: contextCode,
 		user: user,
 		language: document.languageId,
-		query: queryText
+		query: queryText,
+		comment: getLanguageComment(document.languageId)
 	});
 
 	let completion = completions[0];
-	cache.cacheCompletion(context, queryText, completion);
+
+	if (completion) cache.cacheCompletion(context, queryText, completion);
 
 	return completion;
 }
@@ -172,15 +148,33 @@ function createStatusBarItem(command, text) {
 
 function activate(context) {
 	const statusBarItem = createStatusBarItem(
-		'codexr.query',
+		'codexr.info',
 		'CodeXR',
 		'CodeXR'
+	);
+
+	const infoDisposable = vscode.commands.registerCommand(
+		'codexr.info',
+		async () => {
+			const action = await vscode.window.showInformationMessage(
+				'What would you like to do?',
+				...['Reset cache']
+			);
+
+			if (action === 'Reset cache') {
+				cache.resetCompletionCache(context);
+			}
+		}
 	);
 
 	const queryDisposable = vscode.commands.registerCommand(
 		'codexr.query',
 		async () => {
 			try {
+				if (!cache.completionCacheExists(context)) {
+					cache.initCompletionsCache(context);
+				}
+
 				const editor = vscode.window.activeTextEditor;
 				if (!editor) return;
 
@@ -224,6 +218,7 @@ function activate(context) {
 		}
 	);
 
+	context.subscriptions.push(infoDisposable);
 	context.subscriptions.push(statusBarItem);
 	context.subscriptions.push(queryDisposable);
 }

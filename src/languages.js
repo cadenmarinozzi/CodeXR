@@ -133,4 +133,17 @@ const languages = {
 	}
 };
 
-module.exports = languages;
+/**
+ * @function getLanguageComment
+ * @param {string} code - the code to check
+ * @param {string} language - the language to check
+ * @returns {boolean} - The comment
+ */
+function getLanguageComment(language) {
+	let languageDetails = languages[language];
+	if (!languageDetails) languageDetails = languages.default;
+
+	return languageDetails.comment;
+}
+
+module.exports = { languages, getLanguageComment };

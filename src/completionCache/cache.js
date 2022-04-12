@@ -3,7 +3,33 @@
 	License...: MIT (Check LICENSE)
 */
 
-// const fs = require('fs');
+/**
+ * Returns the cached completions for the current context.
+ * @param {Object} context - The current context.
+ * @returns {Array} The cached completions.
+ */
+function getCachedCompletions(context) {
+	return context.globalState.get('completionCache');
+}
+
+/**
+ * @function getCachedCompletion
+ * @param {object} context
+ * @param {string} prompt
+ * @returns {object}
+ */
+function getCachedCompletion(context, prompt) {
+	return getCachedCompletions(context)[prompt];
+}
+
+/**
+ * Sets the cached completions for the given context.
+ * @param {Object} context - The context to update.
+ * @param {Object[]} cachedCompletions - The cached completions.
+ */
+function setCachedCompletions(context, cachedCompletions) {
+	context.globalState.update('completionCache', cachedCompletions);
+}
 
 /**
  * @function cacheCompletion
@@ -12,17 +38,41 @@
  * @param {string} completion
  */
 function cacheCompletion(context, prompt, completion) {
-	context.globalState.update(prompt, completion);
+	const completionsCache = getCachedCompletions(context);
+	completionsCache[prompt] = completion;
+
+	setCachedCompletions(context, completionsCache);
 }
 
 /**
- * Gets cached completion results from the global state.
- * @param {vscode.Contex} context
- * @param {string} prompt - The current prompt.
- * @returns {string} - Cached completion results.
+ * Reset the completion cache.
+ * @param {object} context - The context in which to reset the completion cache.
  */
-function getCachedCompletion(context, prompt) {
-	return context.globalState.get(prompt);
+function resetCompletionCache(context) {
+	setCachedCompletions(context, {});
 }
 
-module.exports = { cacheCompletion, getCachedCompletion };
+/**
+ * @function initCompletionsCache
+ * @param {object} context
+ */
+function initCompletionsCache(context) {
+	context.globalState.update('completionsCache', {});
+}
+
+/**
+ * completionCacheExists
+ * @param {Object} context
+ * @returns {boolean}
+ */
+function completionCacheExists(context) {
+	return context.globalState.get('completionsCache') !== undefined;
+}
+
+module.exports = {
+	cacheCompletion,
+	getCachedCompletion,
+	resetCompletionCache,
+	initCompletionsCache,
+	completionCacheExists
+};
