@@ -9,7 +9,10 @@ const web = require('../web');
 const { encode, decode } = require('gpt-3-encoder');
 
 const apiKey = process.env.OPENAI_API_KEY;
-let configuration = new Configuration({ apiKey: apiKey });
+let configuration = new Configuration({
+	apiKey: apiKey,
+	organization: 'org-HWPmQsbFSGQ2l8uDPvP7YdJs'
+});
 let openai = new OpenAIApi(configuration);
 const filter = new Filter(openai);
 const clamp = (num, min, max) => Math.min(Math.max(num, min), max); // From some stack overflow article from a while ago
@@ -86,7 +89,6 @@ async function queryOpenAI(body) {
 	});
 
 	const request = {
-		organization: 'org-HWPmQsbFSGQ2l8uDPvP7YdJs',
 		prompt: prompt,
 		temperature: 0,
 		top_p: 1,
