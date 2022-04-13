@@ -31,3 +31,12 @@ Currently it looks like this
 			  | <---------| <-----------------
 			  v
 			Request {user} {req}
+			  |
+			  v							 {user}
+			Server -> In Database? Y -> Blacklist
+						  N					
+						  |
+						  |
+						  v
+						Add user 
+						{userId}

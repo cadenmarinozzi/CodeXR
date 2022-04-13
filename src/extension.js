@@ -151,16 +151,22 @@ function createStatusBarItem(command, text) {
 	return statusBarItem;
 }
 
-function createCompletionsList(completion) {
+function createCompletionsList(completion, cursorPosition, document) {
 	let completionItems = [];
 
+	const firstLine = completion.split('\n')[0];
+
 	let completionItem = new vscode.CompletionItem(
-		completion.split('\n')[0],
+		firstLine,
 		vscode.CompletionItemKind.Snippet
 	);
 	completionItem.sortText = '00';
 	completionItem.insertText = completion;
 	completionItem.preselect = true;
+	completionItem.range = new vscode.Range(
+		cursorPosition,
+		document.getWordRangeAtPosition(cursorPosition)
+	);
 
 	completionItems.push(completionItem);
 
@@ -168,10 +174,9 @@ function createCompletionsList(completion) {
 }
 
 async function promptTermsAgreement(context) {
-	const response = vscode.window.showWarningMessage(
+	const response = await vscode.window.showWarningMessage(
 		`Do you agree to the [terms of use](${termsService.termsOfServiceUrl})?`,
-		'Agree',
-		'Disagree'
+		...['Agree', 'Disagree']
 	);
 
 	termsService.updateAgreement(context, response === 'Agree');
@@ -275,6 +280,11 @@ async function activate(context) {
 							cache.initCompletionsCache(context);
 						}
 
+						const editor = vscode.window.activeTextEditor;
+						if (!editor) return;
+
+						const cursorPosition = editor.selection.active;
+
 						statusBarItem.text = '$(sync~spin)';
 
 						let completion = await getCompletions(context);
@@ -300,7 +310,11 @@ async function activate(context) {
 
 						statusBarItem.text = 'CodeXR';
 
-						return createCompletionsList(completion);
+						return createCompletionsList(
+							completion,
+							cursorPosition,
+							document
+						);
 					} catch (err) {
 						vscode.window.showErrorMessage(err.message);
 						console.error(

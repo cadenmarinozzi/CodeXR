@@ -22,7 +22,6 @@ const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 const statusDataRef = ref(database, 'statusData');
 const usersRef = ref(database, 'users');
-const blacklistRef = ref(database, 'blacklist');
 
 /**
  * Get data from the statusDataRef and return it.
@@ -36,24 +35,6 @@ async function getStatusData() {
 }
 
 /**
- * incrementStatusData increments the status data for a date.
- * @param {string} date - A date in the format of "MMDDYYYY".
- * @return {Promise} A promise that resolves when the data has been updated.
- */
-async function incrementStatusData(date) {
-	let statusUpdates = {};
-	// Get the current data
-
-	// Increment the value for the given date
-	const currentData = await getStatusData();
-
-	// Update the data
-	statusUpdates[date] = currentData[date] + 1;
-
-	update(statusDataRef, statusUpdates);
-}
-
-/**
  * @async
  * @function beginStatusData
  * @param {string} date - a string in the format "yyyy-mm-dd"
@@ -64,6 +45,24 @@ async function beginStatusData(date) {
 
 	statusUpdates[date] = 0;
 	await update(statusDataRef, statusUpdates);
+}
+
+/**
+ * incrementStatusData increments the status data for a date.
+ * @param {string} date - A date in the format of "MMDDYYYY".
+ * @return {Promise} A promise that resolves when the data has been updated.
+ */
+async function incrementStatusData(date) {
+	let statusUpdates = {};
+	// Get the current data
+
+	// Increment the value for the given date
+	const currentData = await getStatusData();
+	if (!currentData) await beginStatusData(date);
+
+	// Update the data
+	statusUpdates[date] = currentData[date] + 1;
+	update(statusDataRef, statusUpdates);
 }
 
 /**
