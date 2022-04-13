@@ -5,6 +5,7 @@
 
 const { initializeApp } = require('firebase/app');
 const { getDatabase, ref, update, child, get } = require('firebase/database');
+const SHA256 = require('crypto-js/sha256');
 
 const firebaseConfig = {
 	apiKey: 'AIzaSyB2njt8fOxzBi1COEBH4ahVnUb_rd9_dU8',
@@ -21,6 +22,7 @@ const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 const statusDataRef = ref(database, 'statusData');
 const usersRef = ref(database, 'users');
+const blacklistRef = ref(database, 'blacklist');
 
 /**
  * Get data from the statusDataRef and return it.
@@ -132,12 +134,28 @@ async function isUser(user) {
 	return userData.exists() && userData.val();
 }
 
+// /**
+//  * Creates a user token based on the user's id and ip.
+//  *
+//  * @param {string} userId - The user id to create the token for.
+//  * @param {string} ip - The user's ip.
+//  *
+//  * @return {string} - The user token.
+//  */
+//  function createUserToken(userId, ip) {
+// 	const userIdHash = SHA256(userId).toString();
+// 	const ipHash = SHA256(ip).toString();
+
+// 	return SHA256(userIdHash + ipHash).toString();
+// }
+
 async function beginUser(user) {
 	let updates = {};
 	updates[user] = {
 		blacklisted: false,
 		tokens: 0,
-		usage: 0
+		usage: 0,
+		flaggedCompletions: 0
 	};
 
 	update(usersRef, updates);
@@ -152,4 +170,5 @@ module.exports = {
 	incrementStatusData,
 	beginUser,
 	beginStatusData
+	// createUserToken
 };

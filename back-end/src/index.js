@@ -13,7 +13,6 @@ const debounce = require('./debounce');
 app.use(express.json());
 
 const requestsPerMinute = 30;
-
 let requests = 0;
 
 function requestReset() {
@@ -22,6 +21,26 @@ function requestReset() {
 }
 
 requestReset();
+
+/**
+ * Gets the IP address of the request
+ * @param {object} req - the request object
+ * @returns {string} the IP address of the request
+ */
+function getRequestIP(req) {
+	return req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+}
+
+/**
+ * Checks whether the device is blacklisted
+ *
+ * @param {string} ip - IP address of device
+ * @param {string} user - User of device
+ * @returns {boolean} - Whether the device is blacklisted
+ */
+async function deviceBlacklisted(ip, user) {
+	return (await web.userBlacklisted(user)) || web.ipBlacklisted(ip);
+}
 
 /**
  * Get the current date
@@ -91,7 +110,7 @@ app.post('/query', async (req, res) => {
 			await web.beginUser(body.user);
 		}
 
-		if (await web.userBlacklisted(body.user)) {
+		if (await deviceBlacklisted(getRequestIP(req), body.user)) {
 			res.status(403).end('User blacklisted');
 
 			return;

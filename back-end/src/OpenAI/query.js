@@ -120,6 +120,8 @@ async function query(body) {
 		return response;
 	}
 
+	await web.incrementUserData(body.user, { flaggedCompletions: 1 });
+
 	return {};
 }
 

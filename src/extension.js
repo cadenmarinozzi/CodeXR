@@ -11,6 +11,7 @@ const formatter = require('./formatter');
 const cache = require('./completionCache');
 const { getLanguageComment } = require('./languages');
 const debounce = require('./debounce');
+const termsService = require('./termsService');
 
 /**
  * @param {Document} document
@@ -166,7 +167,21 @@ function createCompletionsList(completion) {
 	return new vscode.CompletionList(completionItems);
 }
 
-function activate(context) {
+async function promptTermsAgreement(context) {
+	const response = vscode.window.showWarningMessage(
+		`Do you agree to the [terms of use](${termsService.termsOfServiceUrl})?`,
+		'Agree',
+		'Disagree'
+	);
+
+	termsService.updateAgreement(context, response === 'Agree');
+}
+
+async function activate(context) {
+	if (!termsService.userHasAgreed(context)) {
+		await promptTermsAgreement(context);
+	}
+
 	const statusBarItem = createStatusBarItem(
 		'codexr.info',
 		'CodeXR',
@@ -190,6 +205,12 @@ function activate(context) {
 	const queryDisposable = vscode.commands.registerCommand(
 		'codexr.query',
 		async () => {
+			if (!termsService.userHasAgreed(context)) {
+				await promptTermsAgreement(context);
+
+				return;
+			}
+
 			try {
 				if (!cache.completionCacheExists(context)) {
 					cache.initCompletionsCache(context);
@@ -243,6 +264,12 @@ function activate(context) {
 			{ pattern: '**' },
 			{
 				provideCompletionItems: async document => {
+					if (!termsService.userHasAgreed(context)) {
+						await promptTermsAgreement(context);
+
+						return;
+					}
+
 					try {
 						if (!cache.completionCacheExists(context)) {
 							cache.initCompletionsCache(context);
