@@ -12,12 +12,13 @@ const debounce = require('./debounce');
 
 app.use(express.json());
 
-const requestsPerMinute = 20;
+const requestsPerMinute = 30;
+
 let requests = 0;
 
 function requestReset() {
 	requests = 0;
-	setTimeout(requestReset, 60000);
+	setTimeout(requestReset, 60 * 1000);
 }
 
 requestReset();
@@ -110,21 +111,21 @@ app.post('/query', async (req, res) => {
 			res.status(200).json(response.data.choices);
 		} catch (err) {
 			console.error(err);
-			// const date = getDate();
+			const date = getDate();
 
-			// if (!(await web.getStatusData(date)))
-			// 	await web.beginStatusData(date);
+			if (!(await web.getStatusData(date)))
+				await web.beginStatusData(date);
 
-			// web.incrementStatusData(date);
+			web.incrementStatusData(date);
 			res.status(500).end(`Internal server error`);
 		}
 	} catch (err) {
-		// const date = getDate();
-
-		// if (!(await web.getStatusData(date))) await web.beginStatusData(date);
-
-		// web.incrementStatusData(date);
 		console.error(err);
+		const date = getDate();
+
+		if (!(await web.getStatusData(date))) await web.beginStatusData(date);
+
+		web.incrementStatusData(date);
 		res.status(500).end(`Internal server error`);
 	}
 });

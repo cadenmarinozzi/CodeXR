@@ -116,11 +116,11 @@ async function query(body) {
 	const text = response.data.choices[0].text; // Get the text from the response
 	await web.incrementUserData(body.user, { tokens: encode(text).length }); // Increment the tokens value the length of the text
 
-	// if (await filter.check(text)) {
-	return response;
-	// }
+	if (await filter.check(text)) {
+		return response;
+	}
 
-	// return {};
+	return {};
 }
 
 module.exports = query;
