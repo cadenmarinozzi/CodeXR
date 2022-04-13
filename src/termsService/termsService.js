@@ -1,3 +1,8 @@
+/*
+	author....: nekumelon
+	License...: MIT (Check LICENSE)
+*/
+
 /**
  * @function userHasAgreed
  * @param {Object} context
