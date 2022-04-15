@@ -12,16 +12,6 @@ const debounce = require('./debounce');
 
 app.use(express.json());
 
-const requestsPerMinute = 30;
-let requests = 0;
-
-function requestReset() {
-	requests = 0;
-	setTimeout(requestReset, 60 * 1000);
-}
-
-requestReset();
-
 /**
  * Gets the IP address of the request
  * @param {object} req - the request object
@@ -69,20 +59,25 @@ function isValidUser(user) {
 	return uuidIsValid(user) && uuidVersion(user) === 4;
 }
 
+const requestsPerMinute = 30;
+
+async function requestReset() {
+	// This obviously does not scale but it's fine for now
+	for (const user of await web.getUsers()) {
+		web.updateUserData(user, { request: 0 });
+	}
+
+	setTimeout(requestReset, 60 * 1000);
+}
+
+requestReset();
+
 app.get('/', async (req, res) => {
 	res.status(200).end('https://github.com/nekumelon/CodeXR');
 });
 
 app.post('/query', async (req, res) => {
 	try {
-		if (requests >= requestsPerMinute) {
-			res.status(429).end('Too many requests');
-
-			return;
-		}
-
-		requests++;
-
 		const body = req.body;
 
 		if (
@@ -106,11 +101,23 @@ app.post('/query', async (req, res) => {
 			return;
 		}
 
-		if (!(await web.isUser(body.user))) {
-			await web.beginUser(body.user);
+		const ip = getRequestIP(req);
+
+		if (
+			(await web.readUserData(body.user, 'requests')) >= requestsPerMinute
+		) {
+			res.status(429).end('Too many requests');
+
+			return;
 		}
 
-		if (await deviceBlacklisted(getRequestIP(req), body.user)) {
+		web.incrementUserData(body.user, { request: 1 });
+
+		if (!(await web.isUser(body.user))) {
+			await web.beginUser(body.user, ip);
+		}
+
+		if (await deviceBlacklisted(ip, body.user)) {
 			res.status(403).end('User blacklisted');
 
 			return;

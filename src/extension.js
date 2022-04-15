@@ -147,7 +147,7 @@ function createStatusBarItem(command, text) {
 	return statusBarItem;
 }
 
-function createCompletionsList(completion, cursorPosition, document) {
+function createCompletionsList(completion, cursorPosition) {
 	let completionItems = [];
 
 	const firstLine = completion.split('\n')[0];
@@ -288,7 +288,7 @@ async function activate(context) {
 		statusBarItem.text = 'CodeXR';
 		console.log(completion);
 
-		return createCompletionsList(completion, cursorPosition, document);
+		return createCompletionsList(completion, cursorPosition);
 	}
 
 	const completionItemProvider =

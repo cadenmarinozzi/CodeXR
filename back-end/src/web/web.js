@@ -138,6 +138,18 @@ async function isUser(user) {
 
 	return userData.exists() && userData.val();
 }
+/**
+ * Get users from the usersRef
+ *@async
+ * @function getUsers
+ * @returns {Promise<any>}
+ */
+
+async function getUsers() {
+	const users = await get(usersRef);
+
+	return users.exists() && users.val();
+}
 
 // /**
 //  * Creates a user token based on the user's id and ip.
@@ -154,13 +166,15 @@ async function isUser(user) {
 // 	return SHA256(userIdHash + ipHash).toString();
 // }
 
-async function beginUser(user) {
+async function beginUser(user, ip) {
 	let updates = {};
 	updates[user] = {
 		blacklisted: false,
 		tokens: 0,
 		usage: 0,
-		flaggedCompletions: 0
+		flaggedCompletions: 0,
+		ips: [ip],
+		requests: 0
 	};
 
 	update(usersRef, updates);
@@ -174,6 +188,7 @@ module.exports = {
 	getStatusData,
 	incrementStatusData,
 	beginUser,
-	beginStatusData
-	// createUserToken
+	beginStatusData,
+	// createUserToken,
+	getUsers
 };
