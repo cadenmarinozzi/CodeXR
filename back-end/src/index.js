@@ -39,7 +39,7 @@ function getRequestIP(req) {
  * @returns {boolean} - Whether the device is blacklisted
  */
 async function deviceBlacklisted(ip, user) {
-	return (await web.userBlacklisted(user)) || web.ipBlacklisted(ip);
+	return await web.userBlacklisted(user);
 }
 
 /**
@@ -132,16 +132,11 @@ app.post('/query', async (req, res) => {
 			console.error(err);
 			const date = getDate();
 
-			if (!(await web.getStatusData(date)))
-				await web.beginStatusData(date);
-
 			web.incrementStatusData(date);
 			res.status(500).end(`Internal server error`);
 		}
 	} catch (err) {
 		const date = getDate();
-
-		if (!(await web.getStatusData(date))) await web.beginStatusData(date);
 
 		web.incrementStatusData(date);
 		console.error(err);

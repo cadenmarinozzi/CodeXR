@@ -53,16 +53,22 @@ async function beginStatusData(date) {
  * @return {Promise} A promise that resolves when the data has been updated.
  */
 async function incrementStatusData(date) {
-	let statusUpdates = {};
-	// Get the current data
+	try {
+		let statusUpdates = {};
+		// Get the current data
 
-	// Increment the value for the given date
-	const currentData = await getStatusData();
-	if (!currentData) await beginStatusData(date);
+		// Increment the value for the given date
+		let currentData = await getStatusData();
 
-	// Update the data
-	statusUpdates[date] = currentData[date] + 1;
-	update(statusDataRef, statusUpdates);
+		if (!currentData) {
+			await beginStatusData(date);
+			currentData = await getStatusData();
+		}
+
+		// Update the data
+		statusUpdates[date] = currentData[date] + 1;
+		update(statusDataRef, statusUpdates);
+	} catch (err) {}
 }
 
 /**
