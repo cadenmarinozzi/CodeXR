@@ -61,10 +61,15 @@ function isValidUser(user) {
 
 const requestsPerMinute = 30;
 
+/**
+ * @async
+ * @function requestReset
+ * Resets the number of requests for all users to 0.
+ */
 async function requestReset() {
 	// This obviously does not scale but it's fine for now
-	for (const user of await web.getUsers()) {
-		web.updateUserData(user, { request: 0 });
+	for (const user of Object.keys(await web.getUsers())) {
+		web.updateUserData(user, { requests: 0 });
 	}
 
 	setTimeout(requestReset, 60 * 1000);
@@ -111,7 +116,7 @@ app.post('/query', async (req, res) => {
 			return;
 		}
 
-		web.incrementUserData(body.user, { request: 1 });
+		web.incrementUserData(body.user, { requests: 1 });
 
 		if (!(await web.isUser(body.user))) {
 			await web.beginUser(body.user, ip);

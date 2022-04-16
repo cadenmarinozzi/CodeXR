@@ -8,7 +8,7 @@ const { getDatabase, ref, update, child, get } = require('firebase/database');
 const SHA256 = require('crypto-js/sha256');
 
 const firebaseConfig = {
-	apiKey: 'AIzaSyB2njt8fOxzBi1COEBH4ahVnUb_rd9_dU8',
+	apiKey: process.env.FIREBASE_API_KEY,
 	authDomain: 'codexr-app.firebaseapp.com',
 	databaseURL: 'https://codexr-app-default-rtdb.firebaseio.com',
 	projectId: 'codexr-app',
@@ -138,13 +138,13 @@ async function isUser(user) {
 
 	return userData.exists() && userData.val();
 }
+
 /**
  * Get users from the usersRef
- *@async
+ * @async
  * @function getUsers
  * @returns {Promise<any>}
  */
-
 async function getUsers() {
 	const users = await get(usersRef);
 
@@ -166,6 +166,14 @@ async function getUsers() {
 // 	return SHA256(userIdHash + ipHash).toString();
 // }
 
+/**
+ * @async
+ * @function beginUser
+ * @param {string} user - The user ID.
+ * @param {string} ip - The user's IP address.
+ * @returns {Promise.<void>}
+ * @description Initializes a user object in the database.
+ */
 async function beginUser(user, ip) {
 	let updates = {};
 	updates[user] = {
@@ -190,5 +198,6 @@ module.exports = {
 	beginUser,
 	beginStatusData,
 	// createUserToken,
-	getUsers
+	getUsers,
+	readUserData
 };

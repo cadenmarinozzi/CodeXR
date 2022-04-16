@@ -14,6 +14,11 @@ let processes = {};
 const envRegExp = new RegExp(/(?!\<)(\w+)(?=\>)/g);
 const envReplacerRegExp = new RegExp(/\<\w+\>/g);
 
+/**
+ * @function parseCommand
+ * @param {string} command
+ * @returns {string}
+ */
 function parseCommand(command) {
 	const env = command.match(envRegExp);
 
@@ -22,6 +27,14 @@ function parseCommand(command) {
 	return command;
 }
 
+/**
+ * @function deploy
+ * @description Deploys a command to the specified server
+ * @param {Object} config - The server configuration
+ * @param {string} config.name - The server name
+ * @param {string} config.command - The command to deploy
+ * @param {boolean} [config.logs] - Whether to display the command's logs
+ */
 function deploy(config) {
 	if (processes[config.name]) processes[config.name].kill();
 

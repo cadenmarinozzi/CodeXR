@@ -147,6 +147,12 @@ function createStatusBarItem(command, text) {
 	return statusBarItem;
 }
 
+/**
+ * Creates a list of completions to be displayed to the user
+ * @param {string} completion
+ * @param {vscode.Position} cursorPosition
+ * @returns {vscode.CompletionList}
+ */
 function createCompletionsList(completion, cursorPosition) {
 	let completionItems = [];
 
@@ -171,6 +177,14 @@ function createCompletionsList(completion, cursorPosition) {
 	return new vscode.CompletionList(completionItems);
 }
 
+/**
+ * @async
+ * @function promptTermsAgreement
+ * @param {Object} context - The context of the extension
+ * @returns {Promise<void>}
+ * @description Shows a warning message asking the user to agree to the terms of use,
+ * and then updates the agreement in the termsService
+ */
 async function promptTermsAgreement(context) {
 	const response = await vscode.window.showWarningMessage(
 		`Do you agree to the [terms of use](${termsService.termsOfServiceUrl})?`,

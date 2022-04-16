@@ -25,6 +25,10 @@ const languages = [
 	'gfm'
 ];
 
+/**
+ * @param {string} code
+ * @returns {string} prettier code
+ */
 function format(code) {
 	return prettier.format(code, {
 		parser: 'babel',
