@@ -18,7 +18,9 @@ class ExamplesPage extends React.Component {
 
 	componentDidMount() {
 		window.addEventListener('scroll', () => {
-			const newScrollHeight = Math.floor(window.scrollY / 5) * 5;
+			const newScrollHeight = Math.floor(window.scrollY / 20) * 20;
+			if (this.state.currentScrollHeight === newScrollHeight) return;
+
 			this.setState({ currentScrollHeight: newScrollHeight });
 		});
 	}

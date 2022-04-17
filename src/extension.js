@@ -24,6 +24,11 @@ function getLineText(document, position) {
 	);
 }
 
+function getCharacterText(document, position) {
+	// Get the text of the document at the given position
+	return document.getText(new vscode.Range(position, position));
+}
+
 /**
  * @param {document} The document to get the context from
  * @param {position} The position in the document
@@ -101,7 +106,10 @@ async function getCompletions(context) {
 	if (cachedCompletion) return cachedCompletion;
 
 	const contextCode = getContext(document, cursorPosition);
-	const completions = await query({
+	const completions = await debounce(
+		query,
+		500
+	)({
 		context: contextCode.trim(),
 		user: user,
 		language: document.languageId,
@@ -153,7 +161,7 @@ function createStatusBarItem(command, text) {
  * @param {vscode.Position} cursorPosition
  * @returns {vscode.CompletionList}
  */
-function createCompletionsList(completion, cursorPosition) {
+function createCompletionsList(completion, cursorPosition, document) {
 	let completionItems = [];
 
 	const firstLine = completion.split('\n')[0];
@@ -165,12 +173,11 @@ function createCompletionsList(completion, cursorPosition) {
 	completionItem.sortText = '001';
 	completionItem.insertText = completion;
 	completionItem.preselect = true;
+	completionItem.filterText = getCharacterText(document, cursorPosition);
 	completionItem.range = new vscode.Range(
-		new vscode.Position(cursorPosition.line, 0),
-		new vscode.Position(cursorPosition.line, cursorPosition.character + 2) // I should use vscode.Position.width
+		new vscode.Position(cursorPosition.line, cursorPosition.character - 1),
+		new vscode.Position(cursorPosition.line, cursorPosition.character + 1) // I should use vscode.Position.with
 	);
-
-	console.log(completionItem.range);
 
 	completionItems.push(completionItem);
 
@@ -302,7 +309,7 @@ async function activate(context) {
 		statusBarItem.text = 'CodeXR';
 		console.log(completion);
 
-		return createCompletionsList(completion, cursorPosition);
+		return createCompletionsList(completion, cursorPosition, document);
 	}
 
 	const completionItemProvider =
@@ -310,7 +317,7 @@ async function activate(context) {
 			{ pattern: '**' },
 			{
 				provideCompletionItems: async document => {
-					return await debounce(provider, 500)(document);
+					return await provider(document);
 				}
 			}
 		);
