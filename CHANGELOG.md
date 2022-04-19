@@ -1,4 +1,5 @@
 # Changelog
+* This list is outdated
 * April 4, 2022 | 11:54 PM
 Removed minimum line length so that code can be generated without even needing a prompt (Just from context) \
 Added support for python comments
@@ -27,3 +28,4 @@ Fixed support for python comments by sending the comment token to the back-end
 Added a clear completion cache button
 Changed the completion cache to a dictionary
 * April 12 | 10:46 AM
+* This list is outdated

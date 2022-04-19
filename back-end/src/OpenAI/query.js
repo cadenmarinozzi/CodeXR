@@ -42,30 +42,13 @@ function trimPrompt(prompt, maxTokens) {
  * @returns {string} - The completed prompt
  */
 function constructCompletionPrompt(body) {
-	const basePrompt = `// Request:\n// Language: javascript\n// Create a for loop from 12724 to 889005, and print the current number\n\n// Response:\nfor (let i = 12724; i < 889005; i++) {\n    console.log(i);\n}\n\n// Request:\n# Language: python\ndef fibo\n\n// Response:\nnacci(n):\n    if (n == 0):\n        return 0;\n\n    if (n <= 2):\n        return 1;\n \n    return fibonacci(n - 1) + fibonacci(n - 2);\n\n// Request:\n// Language: javascript\nfunction binarySearch(array,\n\n// Response:\n target) {\n    let low = 0;\n    let high = target.length;\n    \n    while (low <= high) {\n        const middle = Math.floor(low + (high - low) / 2);\n        const middleValue = array[middle]'\n        \n        if (middleValue === target)\n            return middle;\n            \n        if (middleValue > target)\n            low = middle + 1;\n        else\n            high = middle - 1;\n    }\n    \n    return -1;\n}\n\n// Request:\n# Language: python\ndef discreteFourierTransform(\n\n// Response:\nsignal):\n    N = len(signal)\n    if (N == 1):\n        return signal\n\n    even = discreteFourierTransform(signal[0::2])\n    odd = discreteFourierTransform(signal[1::2])\n\n    T = [exp(-2j * pi * k / N) * odd[k] for k in range(N // 2)]\n\n    return [even[k] + T[k] for k in range(N // 2)] + \\\n           [even[k] - T[k] for k in range(N // 2)]\n\n// Request:\n`;
+	const basePrompt = `I am good at coding. I will complete the prompt.\n\nPrompt:\n// Language javascript\nfunction binarySearch(\nResult: array, target) {\n    let low = 0;\n    let high = array.length - 1;\n    \n    for (low <= high) {\n        const middle = Math.floor(low + (high - low) / 2);\n        const value = array[middle];\n        \n        if (value == target) return middle;\n        if (value > target) high = middle - 1;\n        elseif (value < target) low = middle + 1;\n    }\n    \n    return -1;\n}\n\nPrompt:\n# Language: python\n# Create a for loop from 1 to 100 and print the current number times 3\nResult:\nfor i in range(1, 100):\n    print(i * 3);\nPrompt:\n// Language: javascript\n// Create a console game that has the user gues\nResult: s a random number between 1 and 50 and if the user guesses it, the game ends.\n\nPrompt:\n`;
 
 	return (
 		basePrompt +
 		`${body.comment} Language: ${body.language}\n${
 			body.context === '' ? '' : body.context + '\n' // eesh
-		}${body.prompt}\n\n// Response:`
-	);
-}
-
-/**
- * @function constructSingleLineCompletion
- * @param {string} context - The context of the code request.
- * @param {string} query - The query for the next line of code.
- * @param {string} language - The programming language for the request.
- * @returns {string} - A string containing the base prompt and the language-specific context and query.
- */
-function constructSingleLineCompletion(body) {
-	const basePrompt =
-		'You are an AI Programmer. Generate the next line of code for the given request:\n\n// Request:\n// Language: javascript\nfunction fibonacci(n) {\n// Next Line:\n    if (n <= 1) return 1;\n\n// Request:\n// Language: python\n# Create a for loop from 1 to 100\n// Next Line:\nfor i in range(1, 100):\n\n// Request:\n';
-
-	return (
-		basePrompt +
-		`// Language: ${body.language}\n${body.context}\n${body.prompt}\n// Next Line:\n`
+		}${body.prompt}\nResult:`
 	);
 }
 
@@ -97,8 +80,10 @@ async function queryOpenAI(body) {
 		user: body.user,
 		frequency_penalty: 0.34,
 		presence_penalty: 0,
-		best_of: 3
+		best_of: 1
 	};
+
+	console.log(request.prompt);
 
 	return await openai.createCompletion('code-cushman-001', request);
 }

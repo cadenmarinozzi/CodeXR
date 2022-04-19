@@ -20,7 +20,7 @@ async function queryOpenAI(request) {
 		prompt: request.query,
 		language: request.language,
 		context: request.context,
-		stop: ['\n\n\n', '// Request:', '// Response:'],
+		//stop: ['\n\n\n', 'Prompt:', 'Result:'],
 		user: request.user,
 		singleLine: request.singleLine,
 		maxTokens: maxTokens,

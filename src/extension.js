@@ -245,7 +245,7 @@ async function activate(context) {
 			const document = editor.document;
 			const position = editor.selection.active;
 
-			statusBarItem.text = '$(sync~spin)';
+			statusBarItem.text = '$(loading~spin)';
 
 			let completion = await getCompletions(context);
 			if (!completion) return;
@@ -289,7 +289,7 @@ async function activate(context) {
 
 		const cursorPosition = editor.selection.active;
 
-		statusBarItem.text = '$(sync~spin)';
+		statusBarItem.text = '$(loading~spin)';
 
 		let completion = await getCompletions(context);
 		if (!completion) return;
