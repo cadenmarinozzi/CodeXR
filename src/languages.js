@@ -143,7 +143,19 @@ function getLanguageComment(language) {
 	let languageDetails = languages[language];
 	if (!languageDetails) languageDetails = languages.default;
 
-	return languageDetails.comment;
+	return languageDetails.comment ?? language.default.comment;
 }
 
-module.exports = { languages, getLanguageComment };
+/**
+ * Gets the language function for the given language, or the default language function if no language is provided.
+ * @param {string} language The language to get the function for.
+ * @returns {function} The language function for the given language, or the default language function if no language is provided.
+ */
+function getLanguageFunction(language) {
+	let languageDetails = languages[language];
+	if (!languageDetails) languageDetails = languages.default;
+
+	return languageDetails.function ?? language.default.function;
+}
+
+module.exports = { languages, getLanguageComment, getLanguageFunction };

@@ -81,6 +81,8 @@ app.get('/', async (req, res) => {
 	res.status(200).end('https://github.com/nekumelon/CodeXR');
 });
 
+const acceptedEngines = ['code-cushman-001', 'code-davinci-002'];
+
 app.post('/query', async (req, res) => {
 	try {
 		const body = req.body;
@@ -97,9 +99,10 @@ app.post('/query', async (req, res) => {
 			body.user === null ||
 			!isValidUser(body.user) ||
 			!body.maxTokens ||
-			!body.stop ||
 			body.comment === undefined ||
-			body.comment === null
+			body.comment === null ||
+			body.stop === [] ||
+			!acceptedEngines.includes(body.engineId)
 		) {
 			res.status(400).end('Bad request');
 
@@ -129,7 +132,10 @@ app.post('/query', async (req, res) => {
 		}
 
 		try {
-			let response = await debounce(async () => await query(body), 500)();
+			let [response, prompt] = await debounce(
+				async () => await query(body),
+				500
+			)();
 
 			if (!response.data) {
 				// Didn't pass the filter
@@ -139,7 +145,10 @@ app.post('/query', async (req, res) => {
 				return;
 			}
 
-			res.status(200).json(response.data.choices);
+			res.status(200).json({
+				choices: response.data.choices,
+				prompt: prompt
+			});
 		} catch (err) {
 			console.error(err);
 			const date = getDate();

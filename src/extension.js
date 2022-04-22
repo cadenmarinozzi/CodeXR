@@ -12,6 +12,8 @@ const cache = require('./completionCache');
 const { getLanguageComment } = require('./languages');
 const debounce = require('./debounce');
 const termsService = require('./termsService');
+const inlineProvider = require('./inlineProvider');
+const logger = require('./logger');
 
 /**
  * @param {Document} document
@@ -27,6 +29,10 @@ function getLineText(document, position) {
 function getCharacterText(document, position) {
 	// Get the text of the document at the given position
 	return document.getText(new vscode.Range(position, position));
+}
+
+function getRangeText(document, range) {
+	return document.getText(range);
 }
 
 /**
@@ -166,18 +172,19 @@ function createCompletionsList(completion, cursorPosition, document) {
 
 	const firstLine = completion.split('\n')[0];
 
+	const range = new vscode.Range(
+		new vscode.Position(cursorPosition.line, cursorPosition.character - 1),
+		new vscode.Position(cursorPosition.line, cursorPosition.character + 1) // I should use vscode.Position.with
+	);
+
 	let completionItem = new vscode.CompletionItem(
-		firstLine,
+		getRangeText(document, range) + firstLine,
 		vscode.CompletionItemKind.Snippet
 	);
 	completionItem.sortText = '001';
 	completionItem.insertText = completion;
 	completionItem.preselect = true;
-	completionItem.filterText = getCharacterText(document, cursorPosition);
-	completionItem.range = new vscode.Range(
-		new vscode.Position(cursorPosition.line, cursorPosition.character - 1),
-		new vscode.Position(cursorPosition.line, cursorPosition.character + 1) // I should use vscode.Position.with
-	);
+	completionItem.range = range;
 
 	completionItems.push(completionItem);
 
@@ -202,6 +209,14 @@ async function promptTermsAgreement(context) {
 }
 
 async function activate(context) {
+	logger.setEnv(
+		context.extensionMode === vscode.ExtensionMode.Development
+			? 'dev'
+			: context.extensionMode === vscode.ExtensionMode.Test
+			? 'dev'
+			: 'prod'
+	);
+
 	if (!termsService.userHasAgreed(context)) {
 		await promptTermsAgreement(context);
 	}
@@ -307,22 +322,59 @@ async function activate(context) {
 		}
 
 		statusBarItem.text = 'CodeXR';
-		console.log(completion);
+		logger.log(completion, 'debug');
 
 		return createCompletionsList(completion, cursorPosition, document);
 	}
 
-	const completionItemProvider =
-		vscode.languages.registerCompletionItemProvider(
-			{ pattern: '**' },
-			{
-				provideCompletionItems: async document => {
-					return await provider(document);
-				}
-			}
-		);
+	// const completionItemProvider =
+	// 	vscode.languages.registerCompletionItemProvider(
+	// 		{ pattern: '**' },
+	// 		{
+	// 			provideCompletionItems: async document => {
+	// 				return await provider(document);
+	// 			}
+	// 		}
+	// 	);
 
-	context.subscriptions.push(completionItemProvider);
+	inlineProvider.registerInlineDecorationProvider(async document => {
+		if (!termsService.userHasAgreed(context)) {
+			await promptTermsAgreement(context);
+
+			return;
+		}
+
+		if (!cache.completionCacheExists(context)) {
+			cache.initCompletionsCache(context);
+		}
+
+		const editor = vscode.window.activeTextEditor;
+		if (!editor) return;
+
+		statusBarItem.text = '$(loading~spin)';
+
+		let completion = await getCompletions(context);
+		if (!completion) return;
+
+		if (completion.finish_reason === 'length') {
+			vscode.window.showInformationMessage('The query is too long!');
+
+			return;
+		}
+
+		if (formatter.languages.includes(document.languageId.toLowerCase())) {
+			try {
+				completion = formatter.prettier(completion);
+			} catch (err) {}
+		}
+
+		statusBarItem.text = 'CodeXR';
+		logger.log(completion, 'debug');
+
+		return completion;
+	});
+
+	// context.subscriptions.push(completionItemProvider);
 	context.subscriptions.push(infoDisposable);
 	context.subscriptions.push(statusBarItem);
 	context.subscriptions.push(queryDisposable);
