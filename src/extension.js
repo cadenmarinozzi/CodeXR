@@ -15,6 +15,8 @@ const termsService = require('./termsService');
 const inlineProvider = require('./inlineProvider');
 const logger = require('./logger');
 
+const config = vscode.workspace.getConfiguration('codexr');
+
 /**
  * @param {Document} document
  * @param {Position} position
@@ -327,17 +329,21 @@ async function activate(context) {
 		return createCompletionsList(completion, cursorPosition, document);
 	}
 
-	// const completionItemProvider =
-	// 	vscode.languages.registerCompletionItemProvider(
-	// 		{ pattern: '**' },
-	// 		{
-	// 			provideCompletionItems: async document => {
-	// 				return await provider(document);
-	// 			}
-	// 		}
-	// 	);
+	const completionItemProvider =
+		vscode.languages.registerCompletionItemProvider(
+			{ pattern: '**' },
+			{
+				provideCompletionItems: async document => {
+					if (config.get('inline_completions')) return;
+
+					return await provider(document);
+				}
+			}
+		);
 
 	inlineProvider.registerInlineDecorationProvider(async document => {
+		if (!config.get('inline_completions')) return;
+
 		if (!termsService.userHasAgreed(context)) {
 			await promptTermsAgreement(context);
 
@@ -374,7 +380,7 @@ async function activate(context) {
 		return completion;
 	});
 
-	// context.subscriptions.push(completionItemProvider);
+	context.subscriptions.push(completionItemProvider);
 	context.subscriptions.push(infoDisposable);
 	context.subscriptions.push(statusBarItem);
 	context.subscriptions.push(queryDisposable);

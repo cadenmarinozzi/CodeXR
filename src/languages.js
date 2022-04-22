@@ -6,11 +6,13 @@
 const languages = {
 	javascript: {
 		comment: '//',
-		function: 'function'
+		function: 'function',
+		variables: ['var ', 'let ', 'const ']
 	},
 	jsx: {
 		comment: '//',
-		function: 'function'
+		function: 'function',
+		variables: ['var ', 'let ', 'const ']
 	},
 	html: {
 		comment: '<!--'
@@ -19,7 +21,8 @@ const languages = {
 		comment: '/*'
 	},
 	scss: {
-		comment: '/*'
+		comment: '/*',
+		variables: ['$']
 	},
 	less: {
 		comment: '/*'
@@ -38,15 +41,16 @@ const languages = {
 	},
 	vue: {
 		comment: '<!--',
-		function: 'function'
+		function: 'function '
 	},
 	angular: {
 		comment: '<!--',
-		function: 'function'
+		function: 'function '
 	},
 	typescript: {
 		comment: '//',
-		function: 'function'
+		function: 'function ',
+		variables: ['var ', 'let ', 'const ']
 	},
 	flow: {
 		comment: '//'
@@ -62,11 +66,13 @@ const languages = {
 	},
 	go: {
 		comment: '//',
-		function: 'func'
+		function: 'func ',
+		variables: ['var ', ':=']
 	},
 	rust: {
 		comment: '//',
-		function: 'fn'
+		function: 'fn ',
+		variables: ['let ', 'const ']
 	},
 	c: {
 		comment: '//'
@@ -88,15 +94,16 @@ const languages = {
 	},
 	python: {
 		comment: '#',
-		function: 'def'
+		function: 'def ',
+		variables: [' = '] // Rip
 	},
 	ruby: {
 		comment: '#',
-		function: 'def'
+		function: 'def '
 	},
 	swift: {
 		comment: '//',
-		function: 'func'
+		function: 'func '
 	},
 	objectivec: {
 		comment: '//'
@@ -106,11 +113,13 @@ const languages = {
 	},
 	lua: {
 		comment: '--',
-		function: 'function'
+		function: 'function',
+		variables: ['local ', 'var ']
 	},
 	haskell: {
 		comment: '--',
-		function: 'function'
+		function: 'function',
+		variables: ['let ', 'var ']
 	},
 	clojure: {
 		comment: ';'
@@ -129,7 +138,8 @@ const languages = {
 	},
 	default: {
 		comment: '//',
-		function: 'function'
+		function: 'function',
+		variables: ['var ', 'let ', 'const ']
 	}
 };
 
@@ -158,4 +168,35 @@ function getLanguageFunction(language) {
 	return languageDetails.function ?? language.default.function;
 }
 
-module.exports = { languages, getLanguageComment, getLanguageFunction };
+/**
+ * Gets the language variables for the specified language, or the default language variables if the language is not specified.
+ * @param {string} language The language to get the variables for.
+ * @returns {object} The language variables.
+ */
+function getLanguageVariables(language) {
+	let languageDetails = languages[language];
+	if (!languageDetails) languageDetails = languages.default;
+
+	return languageDetails.variables ?? language.default.variables;
+}
+
+/**
+ * Checks whether a language variable is in the text
+ * @param {string} language - the language being checked
+ * @param {string} text - the text being checked
+ * @returns {boolean} whether the language variable is in the text
+ */
+function hasLanguageVariable(language, text) {
+	const languageVariables = getLanguageVariables(language);
+
+	for (const languageVariable of languageVariables) {
+		if (text.includes(languageVariable)) return true;
+	}
+}
+
+module.exports = {
+	languages,
+	getLanguageComment,
+	getLanguageFunction,
+	hasLanguageVariable
+};

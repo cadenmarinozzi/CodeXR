@@ -5,7 +5,7 @@
 
 const axios = require('axios');
 const vscode = require('vscode');
-const { getLanguageFunction } = require('../languages');
+const { getLanguageFunction, hasLanguageVariable } = require('../languages');
 const logger = require('../logger');
 
 const config = vscode.workspace.getConfiguration('codexr');
@@ -18,8 +18,10 @@ const config = vscode.workspace.getConfiguration('codexr');
  */
 function getNSamples(text, language) {
 	const languageFunction = getLanguageFunction(language);
+	const hasVariable = hasLanguageVariable(language);
 
 	if (text.includes(languageFunction)) return 3;
+	if (hasVariable) return 2;
 
 	return 1;
 }
@@ -55,9 +57,14 @@ function getPromptTemperature(samples) {
 async function queryOpenAI(request) {
 	const maxTokens = config.get('max_tokens');
 	const samples = getNSamples(request.query, request.language);
+	const variableAssignment = hasLanguageVariable(
+		request.language,
+		request.query
+	);
 
 	return await axios.post('https://codexr.herokuapp.com/query', {
 		prompt: request.query,
+		variableAssignment: variableAssignment,
 		language: request.language,
 		context: request.context,
 		stop: ['\n\n\n', 'Prompt:', 'Result:'],

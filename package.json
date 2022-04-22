@@ -41,8 +41,13 @@
       "properties": {
         "codexr.max_tokens": {
           "type": "number",
-          "default": 500,
-          "description": "The max tokens to provide for the Codex"
+          "default": 250,
+          "description": "The max tokens to provide for the API"
+        },
+        "codexr.inline_completions": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether to show inline completions"
         }
       }
     },

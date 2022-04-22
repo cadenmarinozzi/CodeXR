@@ -53,6 +53,17 @@ function constructCompletionPrompt(body) {
 }
 
 /**
+ * Constructs a prompt to assign a value to a given variable.
+ * @param {object} body The body object containing the context and prompt.
+ * @returns {string} The constructed prompt.
+ */
+function constructVariableAssignmentPrompt(body) {
+	const basePrompt = '\nAssign a value to this variable:\n';
+
+	return body.context + basePrompt + body.prompt;
+}
+
+/**
  * Query openAI
  * @param {object} body
  * @param {string} body.prompt
@@ -61,7 +72,9 @@ function constructCompletionPrompt(body) {
  * @param {string} body.stop
  */
 async function queryOpenAI(body) {
-	const prompt = constructCompletionPrompt(body);
+	const prompt = body.variableAssignment
+		? constructVariableAssignmentPrompt
+		: constructCompletionPrompt(body);
 	const nTokens = encode(prompt).length;
 	// Increment the user's token count and usage count
 
@@ -76,7 +89,7 @@ async function queryOpenAI(body) {
 		temperature: body.temperature ?? 0,
 		top_p: 1,
 		max_tokens: clamp(MAX_TOKENS - nTokens, 1, body.maxTokens),
-		stop: body.stop,
+		stop: body.variableAssignment ? ['\n'] : body.stop,
 		user: body.user,
 		frequency_penalty: 0.34,
 		presence_penalty: 0,
