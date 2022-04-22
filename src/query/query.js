@@ -18,7 +18,7 @@ const config = vscode.workspace.getConfiguration('codexr');
  */
 function getNSamples(text, language) {
 	const languageFunction = getLanguageFunction(language);
-	const hasVariable = hasLanguageVariable(language);
+	const hasVariable = hasLanguageVariable(language, text);
 
 	if (text.includes(languageFunction)) return 3;
 	if (hasVariable) return 2;

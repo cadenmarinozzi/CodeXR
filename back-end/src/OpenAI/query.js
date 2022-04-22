@@ -42,7 +42,7 @@ function trimPrompt(prompt, maxTokens) {
  * @returns {string} - The completed prompt
  */
 function constructCompletionPrompt(body) {
-	const basePrompt = `I am good at coding. I will complete the prompt.\n\nPrompt:\n// Language javascript\nfunction binarySearch(\nResult: array, target) {\n    let low = 0;\n    let high = array.length - 1;\n    \n    for (low <= high) {\n        const middle = Math.floor(low + (high - low) / 2);\n        const value = array[middle];\n        \n        if (value == target) return middle;\n        if (value > target) high = middle - 1;\n        elseif (value < target) low = middle + 1;\n    }\n    \n    return -1;\n}\n\nPrompt:\n# Language: python\n# Create a for loop from 1 to 100 and print the current number times 3\nResult:\nfor i in range(1, 100):\n    print(i * 3);\n\nPrompt:\n// Language: javascript\n// Create a console game that has the user gues\nResult: s a random number between 1 and 50 and if the user guesses it, the game ends.\n\nPrompt:\n`;
+	const basePrompt = `I am good at coding. I will complete the prompt.\n\nPrompt:\n// Language javascript\nfunction binarySearch(\nResult: array, target) {\n    let low = 0;\n    let high = array.length - 1;\n    \n    while (low <= high) {\n        const middle = Math.floor(low + (high - low) / 2);\n        const value = array[middle];\n        \n        if (value == target) return middle;\n        if (value > target) high = middle - 1;\n        else if (value < target) low = middle + 1;\n    }\n    \n    return -1;\n}\n\nPrompt:\n# Language: python\n# Create a for loop from 1 to 100 and print the current number times 3\nResult:\nfor i in range(1, 100):\n    print(i * 3);\n\nPrompt:\n// Language: javascript\n// Create a console game that has the user gues\nResult: s a random number between 1 and 50 and if the user guesses it, the game ends.\n\nPrompt:\n`;
 
 	return (
 		basePrompt +
@@ -73,7 +73,7 @@ function constructVariableAssignmentPrompt(body) {
  */
 async function queryOpenAI(body) {
 	const prompt = body.variableAssignment
-		? constructVariableAssignmentPrompt
+		? constructVariableAssignmentPrompt(body)
 		: constructCompletionPrompt(body);
 	const nTokens = encode(prompt).length;
 	// Increment the user's token count and usage count

@@ -87,7 +87,8 @@ let currentInlineText = '';
  */
 function registerInlineDecorationProvider(textProvider) {
 	async function decorationProvider(event) {
-		const contentChanged = event.contentChanges[0].text;
+		const contentChanges = event.contentChanges[0];
+		const contentChanged = contentChanges.text;
 
 		if (changesIgnore.includes(contentChanged)) return;
 		if (event.document.lineCount < 1) return;
@@ -97,6 +98,7 @@ function registerInlineDecorationProvider(textProvider) {
 
 		const tabSize = parseInt(editor.options.tabSize);
 
+		// Accept the completion when tab is pressed
 		if (
 			contentChanged === ' '.repeat(tabSize) ||
 			contentChanged === ' '.repeat(tabSize - 1) ||
@@ -104,10 +106,24 @@ function registerInlineDecorationProvider(textProvider) {
 			contentChanged === '   '
 		) {
 			// Weird edge cases
-			const cursorPosition = editor.selection.active;
+			const contentChangeRange = contentChanges.range;
 
 			editor.edit(editBuilder => {
-				editBuilder.insert(cursorPosition, currentInlineText);
+				editBuilder.insert(contentChangeRange.end, currentInlineText);
+			});
+
+			editor.edit(editBuilder => {
+				editBuilder.replace(
+					new vscode.Range(
+						new vscode.Position(
+							contentChangeRange.end.line,
+							contentChangeRange.end.character -
+								contentChanged.length
+						),
+						contentChangeRange.end
+					),
+					''
+				);
 			});
 
 			clearInlineDecorations();

@@ -12,9 +12,10 @@ class Logger {
 		if (level === 'debug') {
 			if (this.env === 'dev') {
 				console.log(
-					text,
-					important ? 'background: rgb(22, 22, 22); color: #fff' : ''
-				);
+					(important ? '❗❗❗\n' : '') +
+						text +
+						(important ? '\n❗❗❗' : '')
+				); // Bad code
 			}
 
 			return;
