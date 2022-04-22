@@ -1,3 +1,8 @@
+/*
+	author....: nekumelon
+	License...: MIT (Check LICENSE)
+*/
+
 class Logger {
 	// hehe over engineered weird unneeded code go brrr
 	constructor() {
