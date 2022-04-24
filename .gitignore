@@ -1,8 +1,7 @@
-**node_modules
-**package-lock.json
-**build
-**coverage
-**.nyc_output
-**.vsix
-**dist
-**.firebase
+**/.firebase
+**/build
+**/dist
+**/node_modules
+
+**/package-lock.json
+**/.vsix

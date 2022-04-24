@@ -1,6 +1,9 @@
-**node_modules
-**package-lock.json
-**build
-**coverage
-**.nyc_output
-**.vsix
+**/.github
+**/.vscode
+**/assets
+**/build
+**/dist
+**/node_modules
+
+**/.firebase
+**/package-lock.json

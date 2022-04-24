@@ -1,11 +1,6 @@
+**/.github
+**/.vscode
+**/assets
 **/build
 **/dist
 **/node_modules
-**/assets
-**/.vscode
-**/.github
-**/*.json
-**/*.html
-**/*.md
-**/*.scss
-**/*.css

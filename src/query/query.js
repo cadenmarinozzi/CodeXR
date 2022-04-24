@@ -5,9 +5,13 @@
 
 const axios = require('axios');
 const vscode = require('vscode');
-const { getLanguageFunction, hasLanguageVariable } = require('../languages');
+const {
+	hasLanguageVariable,
+	hasLanguageFunction,
+	getLanguageFunction
+} = require('../languages');
 const logger = require('../logger');
-
+const { parse } = require('../parser');
 const config = vscode.workspace.getConfiguration('codexr');
 
 /**
@@ -17,10 +21,10 @@ const config = vscode.workspace.getConfiguration('codexr');
  * @returns {number} - The number of samples to take from the text.
  */
 function getNSamples(text, language) {
-	const languageFunction = getLanguageFunction(language);
+	const languageFunction = hasLanguageFunction(language, text);
 	const hasVariable = hasLanguageVariable(language, text);
 
-	if (text.includes(languageFunction)) return 3;
+	if (languageFunction) return 3;
 	if (hasVariable) return 2;
 
 	return 1;
@@ -33,9 +37,8 @@ function getNSamples(text, language) {
  * @returns {string} The engine id.
  */
 function getEngineId(text, language) {
-	const languageFunction = getLanguageFunction(language);
-
-	if (text.includes(languageFunction)) return 'code-davinci-002';
+	const languageFunction = hasLanguageFunction(language, text);
+	if (languageFunction) return 'code-davinci-002';
 
 	return 'code-cushman-001';
 }
@@ -56,25 +59,50 @@ function getPromptTemperature(samples) {
  */
 async function queryOpenAI(request) {
 	const maxTokens = config.get('max_tokens');
-	const samples = getNSamples(request.query, request.language);
+	const samples = getNSamples(request.prompt, request.language);
 	const variableAssignment = hasLanguageVariable(
 		request.language,
-		request.query
+		request.prompt
 	);
 
+	let singleLine = false;
+
+	if (hasLanguageFunction(request.language, request.prompt)) {
+		singleLine = true;
+	} else {
+		const [lastFunction, isClosed] = parse(
+			request.context,
+			request.language
+		);
+
+		if (!isClosed) {
+			singleLine = true;
+
+			request.prompt =
+				getLanguageFunction(request.language, request.context) +
+				lastFunction +
+				'\n';
+			request.prompt;
+			request.context = '';
+		}
+	}
+
 	return await axios.post('https://codexr.herokuapp.com/query', {
-		prompt: request.query,
-		variableAssignment: variableAssignment,
+		prompt: request.prompt,
+		// variableAssignment: variableAssignment,
 		language: request.language,
 		context: request.context,
 		stop: ['\n\n\n', 'Prompt:', 'Result:'],
 		user: request.user,
-		singleLine: request.singleLine,
+		singleLine: singleLine,
 		maxTokens: maxTokens,
 		comment: request.comment,
 		samples: samples,
 		temperature: getPromptTemperature(samples),
-		engineId: getEngineId(request.query, request.language)
+		temperature: 0,
+		samples: samples,
+		// engineId: getEngineId(request.prompt, request.language)
+		engineId: 'code-davinci-002'
 	});
 }
 
@@ -113,7 +141,7 @@ async function query(request) {
 	return await Promise.all(
 		response.data.choices.map(async value => {
 			// Remove the query from the code
-			return removeQuery(value.text.trim(), request.context);
+			return removeQuery(value.text, request.context);
 		})
 	);
 }

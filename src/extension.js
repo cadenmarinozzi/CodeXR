@@ -28,63 +28,109 @@ function getLineText(document, position) {
 	);
 }
 
+/**
+ * Returns the character at the given position in the document
+ * @param {document} document - The given document
+ * @param {position} position - The given position in the document
+ * @return {String} - The character at the given position
+ */
 function getCharacterText(document, position) {
 	// Get the text of the document at the given position
 	return document.getText(new vscode.Range(position, position));
 }
 
+/**
+ * @function getRangeText
+ * @param {document} document - The document from which to retrieve text
+ * @param {range} range - The range of text to retrieve from the document
+ */
 function getRangeText(document, range) {
 	return document.getText(range);
 }
 
 /**
- * @param {document} The document to get the context from
- * @param {position} The position in the document
+ * @param {document} document The document to get the context from
+ * @param {position} position The position in the document
  * @returns {string} A string containing the context
  */
 function getContext(document, position) {
-	const lastLine = document.lineCount - 1;
-	if (lastLine < 2) return '';
+	// const lastLine = document.lineCount;
+	// if (lastLine === 1) return '';
 
-	let prefix = '';
-	let suffix = '';
+	// const cursorLine = position.line + 1;
 
-	if (position.line > 1) {
-		// Get the range of the previous lines
-		const firtLinePosition = document.lineAt(0).range.start;
-		const lineBeforeCursorPosition = document.lineAt(position.line - 1)
-			.range.end;
+	// let prefix = '';
+	// let suffix = '';
 
-		const previousRange = new vscode.Range(
-			firtLinePosition,
-			lineBeforeCursorPosition
-		);
+	// if (cursorLine > 1) {
+	// 	// Get the range of the previous lines
+	// 	const firstLinePosition = document.lineAt(0).range.start;
+	// 	const lineBeforeCursorPosition = document.lineAt(position.line - 1)
+	// 		.range.end;
 
-		if (document.validateRange(previousRange))
-			prefix = document.getText(previousRange);
-	}
+	// 	const previousRange = new vscode.Range(
+	// 		firstLinePosition,
+	// 		lineBeforeCursorPosition
+	// 	);
 
-	if (position.line !== lastLine) {
-		// Get the range of the following lines
-		const lineAfterCursorPosition = document.lineAt(position.line + 1).range
-			.end;
-		const lastLinePosition = new vscode.Position(
-			lastLine,
-			document.lineAt(lastLine).range.end.character
-		);
+	// 	if (document.validateRange(previousRange)) {
+	// 		prefix = document.getText(previousRange);
+	// 	}
+	// }
 
-		const postRange = new vscode.Range(
-			lineAfterCursorPosition,
-			lastLinePosition
-		);
+	// if (cursorLine !== lastLine) {
+	// 	// Get the range of the following lines
+	// 	const lineAfterCursorPosition = document.lineAt(position.line + 1).range
+	// 		.end;
+	// 	const lastLinePosition = new vscode.Position(
+	// 		lastLine,
+	// 		document.lineAt(lastLine).range.end.character
+	// 	);
 
-		if (document.validateRange(postRange))
-			suffix = document.getText(postRange);
-	}
+	// 	const postRange = new vscode.Range(
+	// 		lineAfterCursorPosition,
+	// 		lastLinePosition
+	// 	);
 
-	// Combine the previous and following lines
+	// 	if (document.validateRange(postRange)) {
+	// 		suffix = document.getText(postRange);
+	// 	}
+	// }
 
-	return prefix + '\n' + suffix;
+	// // Combine the previous and following lines
+
+	// return prefix + '\n' + suffix;
+
+	if (document.lineCount === 1) return '';
+
+	const previousRange = new vscode.Range(
+		new vscode.Position(0, 0),
+		document.lineAt(position.line - 1).range.end
+	);
+
+	return document.getText(previousRange);
+}
+
+/**
+ * Get the user in the globalState
+ * @param {object} context The context of the VSCode extension
+ * @returns {string} The user's id
+ */
+function getUser(context) {
+	let user = context.globalState.get('user'); // Get the user in the globalState
+	if (user) return user;
+
+	user = uuid4(); // Generate a new user
+	context.globalState.update('user', user);
+
+	return user;
+}
+
+/**
+ * @returns {TextEditor}
+ */
+function getEditor() {
+	return vscode.window.activeTextEditor;
 }
 
 /**
@@ -95,38 +141,36 @@ function getContext(document, position) {
  */
 async function getCompletions(context) {
 	// Get the userId from the global state
-	let user = context.globalState.get('user');
+	const user = getUser(context);
 
-	if (!user) {
-		user = uuid4();
-		context.globalState.update('user', user);
-	}
-
-	const editor = vscode.window.activeTextEditor;
+	const editor = getEditor();
 	if (!editor) return;
 	// Get the text of the line the cursor is on
 
 	const document = editor.document;
 	const cursorPosition = editor.selection.active;
-	const queryText = getLineText(document, cursorPosition);
+	const prompt = getLineText(document, cursorPosition);
 
-	const cachedCompletion = cache.getCachedCompletion(context, queryText);
-	if (cachedCompletion) return cachedCompletion;
+	const cachedCompletion = cache.getCachedCompletion(context, prompt);
+	// if (cachedCompletion) return cachedCompletion;
 
 	const contextCode = getContext(document, cursorPosition);
 	const completions = await debounce(
 		query,
 		500
 	)({
-		context: contextCode.trim(),
+		context: contextCode,
 		user: user,
 		language: document.languageId,
-		query: queryText,
+		prompt: prompt,
 		comment: getLanguageComment(document.languageId)
 	});
 
-	let completion = completions[0];
-	if (completion) cache.cacheCompletion(context, queryText, completion);
+	const completion = completions[0]; // Bad
+
+	if (completion) {
+		cache.cacheCompletion(context, prompt, completion);
+	}
 
 	return completion;
 }
@@ -151,11 +195,14 @@ function createStatusBarItem(command, text) {
 	let time = 0.001;
 
 	function update() {
-		if (time + timeStep >= 1 || time + timeStep <= 0) timeStep = -timeStep;
+		if (time + timeStep >= 1 || time + timeStep <= 0) {
+			timeStep = -timeStep;
+		}
+
 		time += timeStep;
 		statusBarItem.color = gradient.rgbAt(time).toString();
 
-		setTimeout(update, 10);
+		setTimeout(update, 10); // ew
 	}
 
 	update();
@@ -210,11 +257,53 @@ async function promptTermsAgreement(context) {
 	termsService.updateAgreement(context, response === 'Agree');
 }
 
+/**
+ * @async
+ * @param {Object} context
+ * @param {Object} statusBarItem
+ */
+async function createCompletion(context, statusBarItem) {
+	if (!termsService.userHasAgreed(context)) {
+		await promptTermsAgreement(context);
+
+		return;
+	}
+
+	if (!cache.completionCacheExists(context)) {
+		cache.initCompletionsCache(context);
+	}
+
+	const editor = getEditor();
+	if (!editor) return;
+
+	const document = editor.document;
+
+	statusBarItem.text = '$(loading~spin)';
+
+	let completion = await getCompletions(context);
+	if (!completion) return;
+
+	if (completion.finish_reason === 'length') {
+		vscode.window.showInformationMessage('The query is too long!');
+
+		return;
+	}
+
+	if (formatter.languages.includes(document.languageId.toLowerCase())) {
+		try {
+			completion = formatter.prettier(completion);
+		} catch (err) {}
+	}
+
+	statusBarItem.text = 'CodeXR';
+
+	return completion;
+}
+
 async function activate(context) {
 	logger.setEnv(
-		context.extensionMode === vscode.ExtensionMode.Development
-			? 'dev'
-			: context.extensionMode === vscode.ExtensionMode.Test
+		context.extensionMode === vscode.ExtensionMode.Development ||
+			context.extensionMode === vscode.ExtensionMode.Test
 			? 'dev'
 			: 'prod'
 	);
@@ -246,40 +335,9 @@ async function activate(context) {
 	const queryDisposable = vscode.commands.registerCommand(
 		'codexr.query',
 		async () => {
-			if (!termsService.userHasAgreed(context)) {
-				await promptTermsAgreement(context);
-
-				return;
-			}
-
-			if (!cache.completionCacheExists(context)) {
-				cache.initCompletionsCache(context);
-			}
-
-			const editor = vscode.window.activeTextEditor;
-			if (!editor) return;
-
-			const document = editor.document;
+			const completion = await createCompletion(context, statusBarItem);
+			const editor = getEditor();
 			const position = editor.selection.active;
-
-			statusBarItem.text = '$(loading~spin)';
-
-			let completion = await getCompletions(context);
-			if (!completion) return;
-
-			if (completion.finish_reason === 'length') {
-				vscode.window.showInformationMessage('The query is too long!');
-
-				return;
-			}
-
-			if (
-				formatter.languages.includes(document.languageId.toLowerCase())
-			) {
-				try {
-					completion = formatter.prettier(completion);
-				} catch (err) {}
-			}
 
 			// Insert the code into the editor
 			editor.edit(editBuilder => {
@@ -290,41 +348,9 @@ async function activate(context) {
 	);
 
 	async function provider(document) {
-		if (!termsService.userHasAgreed(context)) {
-			await promptTermsAgreement(context);
-
-			return;
-		}
-
-		// try {
-		if (!cache.completionCacheExists(context)) {
-			cache.initCompletionsCache(context);
-		}
-
-		const editor = vscode.window.activeTextEditor;
-		if (!editor) return;
-
+		const completion = await createCompletion(context, statusBarItem);
+		const editor = getEditor();
 		const cursorPosition = editor.selection.active;
-
-		statusBarItem.text = '$(loading~spin)';
-
-		let completion = await getCompletions(context);
-		if (!completion) return;
-
-		if (completion.finish_reason === 'length') {
-			vscode.window.showInformationMessage('The query is too long!');
-
-			return;
-		}
-
-		if (formatter.languages.includes(document.languageId.toLowerCase())) {
-			try {
-				completion = formatter.prettier(completion);
-			} catch (err) {}
-		}
-
-		statusBarItem.text = 'CodeXR';
-		logger.log(completion, 'debug');
 
 		return createCompletionsList(completion, cursorPosition, document);
 	}
@@ -344,38 +370,7 @@ async function activate(context) {
 	inlineProvider.registerInlineDecorationProvider(async document => {
 		if (!config.get('inline_completions')) return;
 
-		if (!termsService.userHasAgreed(context)) {
-			await promptTermsAgreement(context);
-
-			return;
-		}
-
-		if (!cache.completionCacheExists(context)) {
-			cache.initCompletionsCache(context);
-		}
-
-		const editor = vscode.window.activeTextEditor;
-		if (!editor) return;
-
-		statusBarItem.text = '$(loading~spin)';
-
-		let completion = await getCompletions(context);
-		if (!completion) return;
-
-		if (completion.finish_reason === 'length') {
-			vscode.window.showInformationMessage('The query is too long!');
-
-			return;
-		}
-
-		if (formatter.languages.includes(document.languageId.toLowerCase())) {
-			try {
-				completion = formatter.prettier(completion);
-			} catch (err) {}
-		}
-
-		statusBarItem.text = 'CodeXR';
-		logger.log(completion, 'debug');
+		const completion = await createCompletion(context, statusBarItem);
 
 		return completion;
 	});

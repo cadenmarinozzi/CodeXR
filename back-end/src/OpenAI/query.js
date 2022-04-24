@@ -53,6 +53,21 @@ function constructCompletionPrompt(body) {
 }
 
 /**
+ * @function constructSingleLineCompletionPrompt
+ * @param {object} body
+ * @return {string}
+ */
+function constructSingleLineCompletionPrompt(body) {
+	const basePrompt = 'Create a body for this function:\n';
+
+	return (
+		(body.context === '' ? '' : body.context + '\n') +
+		basePrompt +
+		body.prompt
+	);
+}
+
+/**
  * Constructs a prompt to assign a value to a given variable.
  * @param {object} body The body object containing the context and prompt.
  * @returns {string} The constructed prompt.
@@ -60,7 +75,11 @@ function constructCompletionPrompt(body) {
 function constructVariableAssignmentPrompt(body) {
 	const basePrompt = '\nAssign a value to this variable:\n';
 
-	return body.context + basePrompt + body.prompt;
+	return (
+		(body.context === '' ? '' : body.context + '\n') +
+		basePrompt +
+		body.prompt
+	);
 }
 
 /**
@@ -74,7 +93,10 @@ function constructVariableAssignmentPrompt(body) {
 async function queryOpenAI(body) {
 	const prompt = body.variableAssignment
 		? constructVariableAssignmentPrompt(body)
+		: body.singleLine
+		? constructSingleLineCompletionPrompt(body)
 		: constructCompletionPrompt(body);
+
 	const nTokens = encode(prompt).length;
 	// Increment the user's token count and usage count
 
@@ -89,7 +111,7 @@ async function queryOpenAI(body) {
 		temperature: body.temperature ?? 0,
 		top_p: 1,
 		max_tokens: clamp(MAX_TOKENS - nTokens, 1, body.maxTokens),
-		stop: body.variableAssignment ? ['\n'] : body.stop,
+		stop: body.singleLine ? ['\n'] : body.stop,
 		user: body.user,
 		frequency_penalty: 0.34,
 		presence_penalty: 0,
@@ -97,10 +119,10 @@ async function queryOpenAI(body) {
 		// echo: body.echo
 	};
 
-	return [
-		await openai.createCompletion(body.engineId, request),
-		request.prompt
-	];
+	return {
+		response: await openai.createCompletion(body.engineId, request),
+		prompt: request.prompt
+	};
 }
 
 /**
@@ -110,19 +132,23 @@ async function queryOpenAI(body) {
  * @returns {object} - Response data from OpenAI
  */
 async function query(body) {
-	body.prompt = trimPrompt(body.prompt);
+	// body.prompt = trimPrompt(body.prompt);
 
-	const [response, prompt] = await queryOpenAI(body);
-	const text = response.data.choices[0].text; // Get the text from the response
+	const result = await queryOpenAI(body);
+	const text = result.response.data.choices[0].text; // Get the text from the response
 	await web.incrementUserData(body.user, { tokens: encode(text).length }); // Increment the tokens value the length of the text
 
-	if (await filter.check(text)) {
-		return [response, prompt];
-	}
+	// Currently the content filter is flagging valid completions
 
-	await web.incrementUserData(body.user, { flaggedCompletions: 1 });
+	// if (await filter.check(text)) {
+	return result;
+	// }
 
-	return {};
+	// console.log(`Completion flagged for ${body.user}`);
+
+	// await web.incrementUserData(body.user, { flaggedCompletions: 1 });
+
+	// return {};
 }
 
 module.exports = query;

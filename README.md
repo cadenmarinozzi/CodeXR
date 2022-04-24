@@ -54,6 +54,9 @@ If you ever have a question or concern about CodeXR's data privacy policy, conta
 
 ## Documentation
 99% of the documentation in CodeXR was made by `https://github.com/nekumelon/CodeDoc`
+
+## License
+CodeXR is licensed under the MIT License. License information can be viewed [here](https://raw.githubusercontent.com/nekumelon/CodeXR/main/LICENSE)
 ## Badges
 [![CodeFactor Code Quality](https://img.shields.io/codefactor/grade/github/nekumelon/CodeXR)](https://www.codefactor.io/repository/github/nekumelon/codexr)
 [![Top Languages](https://img.shields.io/github/languages/top/nekumelon/CodeXR)](https://github.com/nekumelon/CodeXR)

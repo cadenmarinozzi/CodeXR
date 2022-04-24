@@ -6,12 +6,12 @@
 const languages = {
 	javascript: {
 		comment: '//',
-		function: 'function',
+		function: 'function ',
 		variables: ['var ', 'let ', 'const ']
 	},
 	jsx: {
 		comment: '//',
-		function: 'function',
+		function: 'function ',
 		variables: ['var ', 'let ', 'const ']
 	},
 	html: {
@@ -144,14 +144,27 @@ const languages = {
 };
 
 /**
+ * @param {string} language
+ * @returns {object} languageDetails
+ */
+function getLanguageDetails(language) {
+	let languageDetails = languages[language];
+
+	if (!languageDetails) {
+		languageDetails = languages.default;
+	}
+
+	return languageDetails;
+}
+
+/**
  * @function getLanguageComment
  * @param {string} code - the code to check
  * @param {string} language - the language to check
  * @returns {boolean} - The comment
  */
 function getLanguageComment(language) {
-	let languageDetails = languages[language];
-	if (!languageDetails) languageDetails = languages.default;
+	const languageDetails = getLanguageDetails(language);
 
 	return languageDetails.comment ?? language.default.comment;
 }
@@ -161,9 +174,8 @@ function getLanguageComment(language) {
  * @param {string} language The language to get the function for.
  * @returns {function} The language function for the given language, or the default language function if no language is provided.
  */
-function getLanguageFunction(language) {
-	let languageDetails = languages[language];
-	if (!languageDetails) languageDetails = languages.default;
+function getLanguageFunctions(language) {
+	const languageDetails = getLanguageDetails(language);
 
 	return languageDetails.function ?? language.default.function;
 }
@@ -174,8 +186,7 @@ function getLanguageFunction(language) {
  * @returns {object} The language variables.
  */
 function getLanguageVariables(language) {
-	let languageDetails = languages[language];
-	if (!languageDetails) languageDetails = languages.default;
+	const languageDetails = getLanguageDetails(language);
 
 	return languageDetails.variables ?? language.default.variables;
 }
@@ -194,9 +205,34 @@ function hasLanguageVariable(language, text) {
 	}
 }
 
+/**
+ * @param {string} language
+ * @param {string} text
+ * @returns {boolean}
+ */
+function hasLanguageFunction(language, text) {
+	const languageFunctions = getLanguageFunctions(language);
+
+	for (const languageFunction of languageFunctions) {
+		if (text.includes(languageFunction)) return true;
+	}
+}
+
+/**
+ * @param {string} language
+ * @param {string} text
+ * @return {string}
+ */
+function getLanguageFunction(language, text) {
+	const languageFunction = getLanguageFunctions(language);
+
+	if (text.includes(languageFunction)) return languageFunction;
+}
+
 module.exports = {
 	languages,
 	getLanguageComment,
-	getLanguageFunction,
-	hasLanguageVariable
+	hasLanguageFunction,
+	hasLanguageVariable,
+	getLanguageFunction
 };

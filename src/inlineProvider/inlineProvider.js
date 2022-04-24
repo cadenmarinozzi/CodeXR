@@ -93,6 +93,8 @@ let currentInlineText = '';
 function registerInlineDecorationProvider(textProvider) {
 	async function decorationProvider(event) {
 		const contentChanges = event.contentChanges[0];
+		if (!contentChanges?.text) return;
+
 		const contentChanged = contentChanges.text;
 
 		if (changesIgnore.includes(contentChanged)) return;

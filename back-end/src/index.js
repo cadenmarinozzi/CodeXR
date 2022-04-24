@@ -132,12 +132,9 @@ app.post('/query', async (req, res) => {
 		}
 
 		try {
-			let [response, prompt] = await debounce(
-				async () => await query(body),
-				500
-			)();
+			const result = await query(body);
 
-			if (!response.data) {
+			if (!result?.response?.data) {
 				// Didn't pass the filter
 				console.log('No response data!');
 				res.status(500).end('Internal server error. No response data!');
@@ -146,8 +143,8 @@ app.post('/query', async (req, res) => {
 			}
 
 			res.status(200).json({
-				choices: response.data.choices,
-				prompt: prompt
+				choices: result.response.data.choices,
+				prompt: result.prompt
 			});
 		} catch (err) {
 			console.error(err);
