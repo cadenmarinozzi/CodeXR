@@ -2,8 +2,15 @@ const TermsService = require('./termsService');
 const vscode = require('vscode');
 const { registerInlineProvider } = require('./inlineProvider');
 const completionProvider = require('./completionProvider');
+const { createUser, isUser, setUserContext } = require('./user');
 
-function preActivationEvents() {
+function preActivationEvents(context) {
+	setUserContext(context);
+
+	if (!isUser()) {
+		createUser();
+	}
+
 	vscode.window.showInformationMessage('CodeXR is now active!');
 }
 
@@ -14,7 +21,7 @@ async function activate(context) {
 		await termsService.promptUserToAgree();
 	}
 
-	preActivationEvents();
+	preActivationEvents(context);
 	registerInlineProvider(completionProvider);
 }
 

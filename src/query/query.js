@@ -1,11 +1,13 @@
 const axios = require('axios');
 const Completion = require('../completion');
+const { getUser } = require('../user');
 
 axios.defaults.timeoutErrorMessage = 'timedout';
 
 async function query(parameters) {
 	let response;
 	parameters.stops = parameters.singleLine ? ['\n'] : parameters.stops;
+	parameters.user = getUser();
 
 	if (!parameters.validate()) {
 		console.log('Invalid parameters!');
