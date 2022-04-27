@@ -1,27 +1,31 @@
-/*
-	author....: nekumelon
-	License...: MIT (Check LICENSE)
-*/
+const vscode = require('vscode');
 
-/**
- * @function userHasAgreed
- * @param {Object} context
- * @return {boolean}
- */
-function userHasAgreed(context) {
-	return context.globalState.get('agreedToTOS') === true;
+let globalContext;
+
+class TermsService {
+	constructor(context) {
+		this.termsOfServiceUrl =
+			'https://raw.githubusercontent.com/nekumelon/CodeXR/main/TERMS.md';
+		globalContext = context;
+	}
+
+	getAgreementStatus() {
+		return globalContext.globalState.get('codexr-tos-agreed');
+	}
+
+	updateAgreementStatus(status) {
+		return globalContext.globalState.update('codexr-tos-agreed', status);
+	}
+
+	async promptUserToAgree() {
+		const userResponse = await vscode.window.showWarningMessage(
+			`Do you agree to the [terms of use](${this.termsOfServiceUrl})?`,
+			'Agree',
+			'Disagree'
+		);
+
+		this.updateAgreementStatus(userResponse === 'Agree');
+	}
 }
 
-/**
- * Updates the agreedToTOS global state in the provided context.
- * @param {vscode.ExtensionContext} context The extension context.
- * @param {boolean} value The new value for the global state.
- */
-function updateAgreement(context, value) {
-	context.globalState.update('agreedToTOS', value);
-}
-
-const termsOfServiceUrl =
-	'https://raw.githubusercontent.com/nekumelon/CodeXR/main/TERMS.md';
-
-module.exports = { updateAgreement, userHasAgreed, termsOfServiceUrl };
+module.exports = TermsService;

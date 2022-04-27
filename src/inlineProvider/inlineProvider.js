@@ -1,156 +1,131 @@
-/*
-	author....: nekumelon
-	License...: MIT (Check LICENSE)
-*/
-
 const vscode = require('vscode');
-const debounce = require('../debounce');
+const decorations = require('./decorations');
+const { getEditor } = require('../editor');
+const getConfig = require('../config');
 
-let decorationTypes = [];
+const config = getConfig();
 
-/**
- * @param {string} text
- * @return {vscode.TextEditorDecorationType}
- */
-function createInlineDecorationType(text) {
-	const decorationType = vscode.window.createTextEditorDecorationType({
-		after: {
-			contentText: text,
-			color: 'rgb(90, 90, 90)'
-		}
-	});
+function prepareCompletion(completion) {
+	const editor = getEditor();
+	if (!editor) return;
 
-	decorationTypes.push(decorationType);
+	const tabSize = parseInt(editor.options.tabSize);
 
-	return decorationType;
+	return completion
+		.replace(' ', '\u00a0')
+		.replace('\t', '\u00a0'.repeat(tabSize));
 }
 
-/**
- * Creates a new vscode.Range decoration.
- * @param {vscode.Position} initialPosition - The initial position for the decoration.
- * @param {string} text - The text to display in the decoration.
- * @returns {vscode.Range} - The new vscode.Range decoration.
- */
-function createInlineDecorationRange(initialPosition, text) {
-	return new vscode.Range(
-		initialPosition,
-		initialPosition.with(undefined, text.length)
+function isTabEvent(text) {
+	const editor = getEditor();
+	if (!editor) return;
+
+	const tabSize = parseInt(editor.options.tabSize);
+
+	return (
+		text === '\t' ||
+		text === '  ' ||
+		text === '   ' || // Ughhhh
+		text === '    ' ||
+		text === ' '.repeat(tabSize)
 	);
 }
 
-/**
- * Sets an inline decoration on the active text editor.
- * @param {vscode.TextEditorDecorationType} decorationType The decoration type.
- * @param {vscode.Range} range The range to decorate.
- */
-function setInlineDecoration(decorationType, range) {
-	const editor = vscode.window.activeTextEditor;
+let lastCompletion;
+
+async function acceptLastCompletion() {
+	decorations.clearDecorationTypes();
+
+	const editor = getEditor();
 	if (!editor) return;
 
-	editor.setDecorations(decorationType, [range]);
+	await editor.edit(editBuilder => {
+		editBuilder.insert(editor.selection.active, lastCompletion);
+	});
 }
 
-/**
- * @function setInlineDecorationText
- * @param {string} text - A string of text to decorate
- * @description Decorates a string of text line by line with an inline decoration.
- */
-function setInlineDecorationText(text) {
-	const editor = vscode.window.activeTextEditor;
+async function removeContentChange(contentChange) {
+	const editor = getEditor();
 	if (!editor) return;
 
-	const cursorPosition = editor.selection.active;
-
-	for (const [lineNumber, line] of text.split('\n').entries()) {
-		const range = createInlineDecorationRange(cursorPosition, line);
-
-		setInlineDecoration(createInlineDecorationType(line), range);
-	}
+	return await editor.edit(editBuilder => {
+		editBuilder.replace(
+			contentChange.range.with(
+				contentChange.range.start.with(
+					undefined,
+					contentChange.range.start.character
+				),
+				contentChange.range.start.with(
+					undefined,
+					contentChange.range.start.character +
+						contentChange.text.length
+				)
+			),
+			''
+		);
+	});
 }
 
-/**
- * Clears all inline decorations from the active text editor.
- */
-function clearInlineDecorations() {
-	const editor = vscode.window.activeTextEditor;
-	if (!editor) return;
-
-	for (const decorationType of decorationTypes) {
-		editor.setDecorations(decorationType, []);
-	}
-
-	decorationTypes = [];
-}
-
-const changesIgnore = [' ', ''];
-
-let currentInlineText = '';
-
-/**
- * Registers an inline decoration provider.
- * @param {function} textProvider A function that provides the text for the inline decoration.
- */
-function registerInlineDecorationProvider(textProvider) {
-	async function decorationProvider(event) {
-		const contentChanges = event.contentChanges[0];
-		if (!contentChanges?.text) return;
-
-		const contentChanged = contentChanges.text;
-
-		if (changesIgnore.includes(contentChanged)) return;
-		if (event.document.lineCount < 1) return;
-
-		const editor = vscode.window.activeTextEditor;
+function registerInlineProvider(inlineProvider) {
+	vscode.workspace.onDidChangeTextDocument(async event => {
+		const editor = getEditor();
 		if (!editor) return;
 
-		const tabSize = parseInt(editor.options.tabSize);
+		const supportedLanguages = config.get('supported_languages');
 
-		// Accept the completion when tab is pressed
 		if (
-			contentChanged === ' '.repeat(tabSize) ||
-			contentChanged === ' '.repeat(tabSize - 1) ||
-			contentChanged === '  ' ||
-			contentChanged === '   '
+			!supportedLanguages.includes(
+				event.document.languageId.toLowerCase()
+			)
 		) {
-			// Weird edge cases
-			const contentChangeRange = contentChanges.range;
+			return;
+		}
 
-			editor.edit(editBuilder => {
-				editBuilder.insert(contentChangeRange.end, currentInlineText);
-			});
+		const contentChange = event.contentChanges?.[0];
+		if (!contentChange?.text) return;
 
-			editor.edit(editBuilder => {
-				editBuilder.replace(
-					new vscode.Range(
-						new vscode.Position(
-							contentChangeRange.end.line,
-							contentChangeRange.end.character -
-								contentChanged.length
-						),
-						contentChangeRange.end
-					),
-					''
-				);
-			});
+		const changedText = contentChange.text;
+		if (!changedText) return;
 
-			clearInlineDecorations();
+		if (isTabEvent(changedText)) {
+			if (!lastCompletion) return;
+
+			await removeContentChange(contentChange);
+			await acceptLastCompletion();
+
+			lastCompletion = null;
 
 			return;
 		}
 
-		clearInlineDecorations();
+		const completion = await inlineProvider();
+		if (!completion) return;
 
-		const generated = await textProvider(event.document);
-		if (!generated) return;
+		lastCompletion = completion;
 
-		currentInlineText = generated;
+		const lines = completion.split('\n');
+		const cursorPosition = editor.selection.active;
 
-		setInlineDecorationText(generated);
-	}
+		decorations.clearDecorationTypes();
 
-	vscode.workspace.onDidChangeTextDocument(event => {
-		debounce(decorationProvider, 100)(event);
+		lines.forEach((line, lineNumber) => {
+			const insertText = prepareCompletion(line);
+
+			const decorationType = decorations.createDecorationType(insertText);
+			const lineRange = new vscode.Range(
+				new vscode.Position(
+					cursorPosition.line + lineNumber,
+					cursorPosition.character
+				),
+				new vscode.Position(
+					cursorPosition.line + lineNumber,
+					cursorPosition.character + line.length
+				)
+			);
+
+			decorations.setInlineDecoration(decorationType, lineRange);
+		});
 	});
 }
 
-module.exports = { registerInlineDecorationProvider };
+module.exports = { registerInlineProvider };

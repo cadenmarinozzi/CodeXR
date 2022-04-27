@@ -1,3 +1,4 @@
 const parser = require('./parser');
+const blocksToParameters = require('./blocksToParameters');
 
-module.exports = parser;
+module.exports = { parser, blocksToParameters };

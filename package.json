@@ -44,10 +44,10 @@
           "default": 250,
           "description": "The max tokens to provide for the API"
         },
-        "codexr.inline_completions": {
-          "type": "boolean",
-          "default": true,
-          "description": "Whether to show inline completions"
+        "codexr.supported_languages": {
+          "type": "array",
+          "default": ["javascript"],
+          "description": "The languages to show completions on"
         }
       }
     },
