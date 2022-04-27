@@ -1,3 +1,8 @@
+/*
+	author....: nekumelon
+	License...: MIT (Check LICENSE)
+*/
+
 const web = require('../web');
 
 function verifyUser(user, ip) {

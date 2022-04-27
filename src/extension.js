@@ -1,3 +1,8 @@
+/*
+	author....: nekumelon
+	License...: MIT (Check LICENSE)
+*/
+
 const TermsService = require('./termsService');
 const vscode = require('vscode');
 const { registerInlineProvider } = require('./inlineProvider');

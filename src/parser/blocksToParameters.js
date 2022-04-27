@@ -1,3 +1,8 @@
+/*
+	author....: nekumelon
+	License...: MIT (Check LICENSE)
+*/
+
 const Parameters = require('../parameters');
 
 function temperatureFromSamples(samples) {

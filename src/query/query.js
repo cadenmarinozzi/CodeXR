@@ -1,3 +1,8 @@
+/*
+	author....: nekumelon
+	License...: MIT (Check LICENSE)
+*/
+
 const axios = require('axios');
 const Completion = require('../completion');
 const { getUser } = require('../user');

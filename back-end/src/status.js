@@ -1,3 +1,8 @@
+/*
+	author....: nekumelon
+	License...: MIT (Check LICENSE)
+*/
+
 const statusCodes = {
 	BAD_REQUEST: 400,
 	TIMEOUT: 408,

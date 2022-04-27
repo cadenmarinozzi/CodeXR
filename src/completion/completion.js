@@ -1,3 +1,8 @@
+/*
+	author....: nekumelon
+	License...: MIT (Check LICENSE)
+*/
+
 class Completion {
 	constructor(completion) {
 		this.timedout = completion.timedout;

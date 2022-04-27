@@ -1,3 +1,8 @@
+/*
+	author....: nekumelon
+	License...: MIT (Check LICENSE)
+*/
+
 const { statusCodes } = require('../status');
 const { Configuration, OpenAIApi } = require('openai');
 const { encode } = require('gpt-3-encoder');

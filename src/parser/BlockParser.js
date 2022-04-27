@@ -1,3 +1,8 @@
+/*
+	author....: nekumelon
+	License...: MIT (Check LICENSE)
+*/
+
 class Block {
 	constructor(code, lineNumber, lineDefined, blockType, language) {
 		this.code = code;

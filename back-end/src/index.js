@@ -1,3 +1,8 @@
+/*
+	author....: nekumelon
+	License...: MIT (Check LICENSE)
+*/
+
 const express = require('express');
 const { verifyUser } = require('./verification');
 const { statusCodes, statusMessages } = require('./status');

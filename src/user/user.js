@@ -1,3 +1,8 @@
+/*
+	author....: nekumelon
+	License...: MIT (Check LICENSE)
+*/
+
 const { v4: uuid } = require('uuid');
 
 let globalContext;

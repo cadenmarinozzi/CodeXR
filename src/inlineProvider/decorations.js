@@ -1,3 +1,8 @@
+/*
+	author....: nekumelon
+	License...: MIT (Check LICENSE)
+*/
+
 const { getEditor } = require('../editor');
 const vscode = require('vscode');
 

@@ -1,3 +1,8 @@
+/*
+	author....: nekumelon
+	License...: MIT (Check LICENSE)
+*/
+
 const { Range, Position } = require('vscode');
 const { getDocument, getEditor } = require('../editor');
 const { parser, blocksToParameters } = require('../parser');

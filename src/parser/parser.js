@@ -1,3 +1,8 @@
+/*
+	author....: nekumelon
+	License...: MIT (Check LICENSE)
+*/
+
 const BlockParser = require('./BlockParser');
 
 function parser(code, language) {

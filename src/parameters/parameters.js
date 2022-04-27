@@ -1,3 +1,8 @@
+/*
+	author....: nekumelon
+	License...: MIT (Check LICENSE)
+*/
+
 const validEngines = ['code-davinci-002', 'code-cushman-001'];
 
 function getStopSequence(singleLine) {

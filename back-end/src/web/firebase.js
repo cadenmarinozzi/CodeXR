@@ -1,3 +1,8 @@
+/*
+	author....: nekumelon
+	License...: MIT (Check LICENSE)
+*/
+
 const { initializeApp } = require('firebase/app');
 const { getDatabase, ref, get, update } = require('firebase/database');
 const getDate = require('../date');
