@@ -3,6 +3,10 @@
 	License...: MIT (Check LICENSE)
 */
 
+/**
+ * Returns the current date in the format yyyy-mm-dd
+ * @return {string} the current date
+ */
 function getDate() {
 	const date = new Date();
 

@@ -5,16 +5,13 @@
 
 const web = require('../web');
 
+/**
+ * @param {Object} user - the user to verify
+ * @param {string} ip - the ip address to verify
+ * @returns {boolean} - whether the user and ip are verified
+ */
 function verifyUser(user, ip) {
-	if (web.userBlacklisted(user) || web.userBlacklisted(ip)) {
-		return false;
-	}
-
-	if (web.isUserRateLimited(user) || web.isIpRateLimited(ip)) {
-		return false;
-	}
-
-	return true;
+	return web.userBlacklisted(user) || web.isUserRateLimited(user);
 }
 
 module.exports = { verifyUser };

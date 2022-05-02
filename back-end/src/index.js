@@ -12,6 +12,11 @@ const web = require('./web');
 const app = express();
 app.use(express.json());
 
+/**
+ * @function getRequestIP
+ * @param {object} req - the request object
+ * @returns {string} - the client's IP address
+ */
 function getRequestIP(req) {
 	return req.headers['x-forwarded-for'] ?? req.connection.remoteAddress;
 }
@@ -25,9 +30,11 @@ app.post('/query', async (req, res) => {
 		const parameters = req.body;
 		const ip = getRequestIP(req);
 
-		if (!(await web.isUser(parameters.user))) {
-			await web.beginUser(parameters.user, ip);
-		}
+		// if (!(await web.isUser(parameters.user))) {
+		// 	await web.beginUser(parameters.user, ip);
+		// }
+
+		// await web.createNewUserValues(parameters.user);
 
 		if (!verifyUser(parameters.user, ip)) {
 			return res
@@ -43,8 +50,12 @@ app.post('/query', async (req, res) => {
 
 		res.status(statusCodes.OK).json(completion);
 	} catch (err) {
-		web.incrementStatusData();
-		console.error(`INTERNAL_SERVER_ERROR: ${err}`);
+		// web.incrementStatusData();
+		console.error(`INTERNAL_SERVER_ERROR: ${err.toString()}`);
+
+		res.status(statusCodes.INTERNAL_SERVER_ERROR).end(
+			statusMessages[statusCodes.INTERNAL_SERVER_ERROR]
+		);
 	}
 });
 

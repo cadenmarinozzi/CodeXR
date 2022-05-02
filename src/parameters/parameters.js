@@ -5,6 +5,10 @@
 
 const validEngines = ['code-davinci-002', 'code-cushman-001'];
 
+/**
+ * @param {boolean} singleLine
+ * @returns {string}
+ */
 function getStopSequence(singleLine) {
 	return singleLine ? '\n' : '\n\n\n';
 }
@@ -21,6 +25,13 @@ class Parameters {
 		this.prompt = parameters.prompt ?? '';
 	}
 
+	/**
+	 * @param {string} engine
+	 * @param {number} temperature
+	 * @param {number} samples
+	 * @param {Array} stops
+	 * @param {number} timeout
+	 */
 	validate() {
 		return (
 			validEngines.includes(this.engine) &&
