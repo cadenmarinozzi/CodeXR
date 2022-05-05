@@ -137,17 +137,6 @@ function registerInlineProvider(inlineProvider) {
 			return;
 		}
 
-		if (isTabEvent(changedText)) {
-			if (!lastCompletion) return;
-
-			await removeContentChange(contentChange);
-			await acceptLastCompletion();
-
-			lastCompletion = null;
-
-			return;
-		}
-
 		const completion = await inlineProvider();
 		if (!completion) return;
 
@@ -178,7 +167,7 @@ function registerInlineProvider(inlineProvider) {
 		});
 	}
 
-	vscode.workspace.onDidChangeTextDocument(event => {
+	vscode.workspace.onDidChangeTextDocument(async event => {
 		const contentChange = event.contentChanges?.[0];
 		if (!contentChange?.text) return;
 
@@ -187,6 +176,17 @@ function registerInlineProvider(inlineProvider) {
 
 		if (!isTabEvent(changedText) && changedText !== ' ') {
 			decorations.clearDecorationTypes();
+		}
+
+		if (isTabEvent(changedText)) {
+			if (!lastCompletion) return;
+
+			await removeContentChange(contentChange);
+			await acceptLastCompletion();
+
+			lastCompletion = null;
+
+			return;
 		}
 
 		debounce(textChanged, 500)(event);
