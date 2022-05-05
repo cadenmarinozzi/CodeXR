@@ -30,11 +30,11 @@ app.post('/query', async (req, res) => {
 		const parameters = req.body;
 		const ip = getRequestIP(req);
 
-		// if (!(await web.isUser(parameters.user))) {
-		// 	await web.beginUser(parameters.user, ip);
-		// }
+		if (!(await web.isUser(parameters.user))) {
+			await web.beginUser(parameters.user, ip);
+		}
 
-		// await web.createNewUserValues(parameters.user);
+		await web.createNewUserValues(parameters.user);
 
 		if (!verifyUser(parameters.user, ip)) {
 			return res
@@ -50,7 +50,7 @@ app.post('/query', async (req, res) => {
 
 		res.status(statusCodes.OK).json(completion);
 	} catch (err) {
-		// web.incrementStatusData();
+		web.incrementStatusData();
 		console.error(`INTERNAL_SERVER_ERROR: ${err.toString()}`);
 
 		res.status(statusCodes.INTERNAL_SERVER_ERROR).end(

@@ -32,7 +32,8 @@ function validateParameters(parameters) {
 		parameters.samples > 0 &&
 		validEngines.includes(parameters.engine) &&
 		parameters.stops !== [] &&
-		parameters.user
+		parameters.user &&
+		parameters.language
 	);
 }
 
@@ -62,7 +63,7 @@ function getContextCode(parameters) {
 function createSingleLinePrompt(parameters) {
 	const contextCode = getContextCode(parameters);
 
-	return `${contextCode}Create the next line of code:\n${parameters.prompt}`;
+	return `${parameters.language}\n\n${contextCode}Create the next line of code:\n${parameters.prompt}`;
 }
 
 /**
@@ -75,7 +76,7 @@ function createMultiLinePrompt(parameters) {
 	// Get the context code
 	const contextCode = getContextCode(parameters);
 
-	return `${contextCode}Finish this code:\n${parameters.prompt}`;
+	return `${parameters.language}\n\n${contextCode}Finish this code:\n${parameters.prompt}`;
 }
 
 /**

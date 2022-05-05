@@ -27,6 +27,7 @@ class Parameters {
 		this.timeout = parameters.timeout ?? 20;
 		this.context = parameters.context ?? [];
 		this.prompt = parameters.prompt ?? '';
+		this.language = parameters.language;
 	}
 
 	update() {

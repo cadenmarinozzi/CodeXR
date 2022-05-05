@@ -71,7 +71,8 @@ function blocksToParameters(block) {
 		temperature: temperatureFromSamples(samples),
 		engine: getEngine(block),
 		// stops: getStops(block),
-		prompt: block.code
+		prompt: block.code,
+		language: block.language.id
 	});
 
 	return parameters;
