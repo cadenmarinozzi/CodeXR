@@ -107,7 +107,6 @@ async function query(parameters) {
 
 	// Get the number of tokens in the prompt
 	const prompt = createPrompt(parameters);
-	console.log(prompt);
 	const numTokens = encode(prompt).length;
 	// Create the completion
 

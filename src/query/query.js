@@ -18,8 +18,6 @@ axios.defaults.timeoutErrorMessage = 'timedout';
  */
 async function query(parameters) {
 	let response;
-	// If the user is using a single line, we need to replace the stops with a newline
-	parameters.stops = parameters.singleLine ? ['\n'] : parameters.stops;
 	// Get the user's username
 	parameters.user = getUser();
 

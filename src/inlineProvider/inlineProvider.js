@@ -7,6 +7,7 @@ const vscode = require('vscode');
 const decorations = require('./decorations');
 const { getEditor } = require('../editor');
 const getConfig = require('../config');
+const debounce = require('../debounce');
 
 const config = getConfig();
 
@@ -57,6 +58,7 @@ function isTabEvent(text) {
 }
 
 let lastCompletion;
+let lastCompletionRange;
 
 /**
  * Accepts the last completion from the editor.
@@ -108,7 +110,7 @@ async function removeContentChange(contentChange) {
  * @param {function} inlineProvider - The inline provider to register
  */
 function registerInlineProvider(inlineProvider) {
-	vscode.workspace.onDidChangeTextDocument(async event => {
+	async function textChanged(event) {
 		const editor = getEditor();
 		if (!editor) return;
 
@@ -128,6 +130,13 @@ function registerInlineProvider(inlineProvider) {
 		const changedText = contentChange.text;
 		if (!changedText) return;
 
+		const changeRange = contentChange.range;
+		if (!changeRange) return;
+
+		if (changeRange === lastCompletionRange) {
+			return;
+		}
+
 		if (isTabEvent(changedText)) {
 			if (!lastCompletion) return;
 
@@ -143,6 +152,7 @@ function registerInlineProvider(inlineProvider) {
 		if (!completion) return;
 
 		lastCompletion = completion;
+		lastCompletionRange = changeRange;
 
 		const lines = completion.split('\n');
 		const cursorPosition = editor.selection.active;
@@ -166,6 +176,20 @@ function registerInlineProvider(inlineProvider) {
 
 			decorations.setInlineDecoration(decorationType, lineRange);
 		});
+	}
+
+	vscode.workspace.onDidChangeTextDocument(event => {
+		const contentChange = event.contentChanges?.[0];
+		if (!contentChange?.text) return;
+
+		const changedText = contentChange.text;
+		if (!changedText) return;
+
+		if (!isTabEvent(changedText) && changedText !== ' ') {
+			decorations.clearDecorationTypes();
+		}
+
+		debounce(textChanged, 500)(event);
 	});
 }
 

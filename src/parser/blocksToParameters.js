@@ -11,7 +11,7 @@ const Parameters = require('../parameters');
  * @returns {number} the temperature
  */
 function temperatureFromSamples(samples) {
-	return samples <= 1 ? 0 : Math.log(samples) / 2;
+	return Math.min(samples <= 1 ? 0 : Math.log10(samples) / 2, 1);
 }
 
 /**
@@ -20,7 +20,7 @@ function temperatureFromSamples(samples) {
  * @return {number} the number of samples from a given block complexity
  */
 function samplesFromBlockComplexity(complexity) {
-	return Math.floor(2 + Math.log2(complexity));
+	return Math.min(Math.floor(2 + Math.log10(complexity)), 40);
 }
 
 /**
@@ -70,7 +70,7 @@ function blocksToParameters(block) {
 		samples: samples,
 		temperature: temperatureFromSamples(samples),
 		engine: getEngine(block),
-		stops: getStops(block),
+		// stops: getStops(block),
 		prompt: block.code
 	});
 

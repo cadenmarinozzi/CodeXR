@@ -8,6 +8,7 @@ const vscode = require('vscode');
 const { registerInlineProvider } = require('./inlineProvider');
 const completionProvider = require('./completionProvider');
 const { createUser, isUser, setUserContext } = require('./user');
+const StatusBar = require('./statusBar');
 
 /**
  * preActivationEvents - Runs code before the CodeXR extension is activated

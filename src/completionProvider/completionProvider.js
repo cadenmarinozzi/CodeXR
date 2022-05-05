@@ -10,8 +10,12 @@ const languages = require('../parser/languages');
 const Parameters = require('../parameters');
 const query = require('../query');
 const getConfig = require('../config');
+const StatusBar = require('../statusBar');
 
 const config = getConfig();
+const statusBar = new StatusBar({
+	text: 'CodeXR'
+});
 
 /**
  * @function getPromptParts
@@ -76,28 +80,73 @@ async function completionProvider() {
 	const document = getDocument();
 	if (!document) return;
 
+	statusBar.text = '$(loading~spin)';
+	statusBar.update();
+
 	const [prefix, cursor, suffix] = getPromptParts(document);
 	const language = languages[document.languageId.toLowerCase()];
 	const prefixBlocks = parser(prefix, language).getBlocks();
 	const cursorBlocks = parser(cursor, language).getBlocks();
 	const suffixBlocks = parser(suffix, language).getBlocks();
 
-	let completionParams = blocksToParameters(
-		getMainBlock(cursorBlocks, prefixBlocks)
-	);
+	const mainBlock = getMainBlock(cursorBlocks, prefixBlocks);
+
+	if (!mainBlock || mainBlock.isClosed) {
+		const completionParams = new Parameters({
+			singleLine: true,
+			engine: 'code-cushman-001',
+			samples: 3,
+			context: [prefix, suffix],
+			prompt: prefix
+		});
+
+		const completion = await query(completionParams);
+
+		statusBar.reset();
+
+		return completion.completion;
+	}
+
+	let completionParams = blocksToParameters(mainBlock);
+
 	completionParams.singleLine = true;
 	completionParams.context = [prefixBlocks, suffixBlocks];
+	completionParams.update();
+
+	console.log(completionParams);
 
 	const singlelineCompletion = await query(completionParams);
+	console.log(singlelineCompletion);
 
-	completionParams.singleLine = false;
-	completionParams.timeout = 1.5;
-	const multiLineCompletion = await query(completionParams);
-	console.log(singlelineCompletion, multiLineCompletion);
+	if (!mainBlock.isOpened && singlelineCompletion?.completion) {
+		statusBar.reset();
 
-	if (multiLineCompletion?.timedout && !singlelineCompletion?.timedout) {
 		return singlelineCompletion.completion;
 	}
+
+	completionParams = blocksToParameters(mainBlock); // Reset the stops
+
+	completionParams.context = [prefixBlocks, suffixBlocks];
+	completionParams.singleLine = false;
+	completionParams.timeout = 3.5;
+	completionParams.update();
+
+	const multiLineCompletion = await query(completionParams);
+	console.log(multiLineCompletion);
+
+	if (!multiLineCompletion?.completion || !singlelineCompletion?.completion) {
+		statusBar.reset();
+
+		return;
+	}
+
+	if (multiLineCompletion.timedout && !singlelineCompletion.timedout) {
+		statusBar.reset();
+
+		return singlelineCompletion.completion;
+	}
+
+	statusBar.reset();
 
 	return multiLineCompletion.completion;
 }

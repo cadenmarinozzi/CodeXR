@@ -50,7 +50,6 @@ async function getUserData(user) {
 async function updateLastRequestTime(user) {
 	// Get a reference to the user's document
 	const userRef = child(usersRef, user);
-
 	// Get the current time in milliseconds
 	const currTime = new Date()[Symbol.toPrimitive]('number');
 
