@@ -10,7 +10,7 @@ const validEngines = ['code-davinci-002', 'code-cushman-001'];
  * @returns {string}
  */
 function getStopSequence(singleLine) {
-	return singleLine ? '\n' : '\n\n\n';
+	return singleLine ? ['\n'] : ['\n\n\n'];
 }
 
 class Parameters {
@@ -22,9 +22,9 @@ class Parameters {
 
 		const stopSequence = getStopSequence(this.singleLine);
 		this.stops = parameters.stops
-			? [...parameters.stops, stopSequence]
-			: [stopSequence];
-		this.timeout = parameters.timeout ?? 20;
+			? [...parameters.stops, ...stopSequence]
+			: [...stopSequence];
+		this.timeout = parameters.timeout ?? 5;
 		this.context = parameters.context ?? [];
 		this.prompt = parameters.prompt ?? '';
 		this.language = parameters.language;
@@ -32,7 +32,7 @@ class Parameters {
 
 	update() {
 		const stopSequence = getStopSequence(this.singleLine);
-		this.stops = [stopSequence];
+		this.stops = [...stopSequence];
 	}
 
 	/**

@@ -34,7 +34,8 @@ async function query(parameters) {
 		);
 	} catch (err) {
 		if (err.message !== 'timedout') {
-			vscode.window.showWarningMessage(`CodeXR: ${err.message}`);
+			// vscode.window.showWarningMessage(`CodeXR: ${err.message}`);
+			console.error(parameters);
 
 			return;
 		}

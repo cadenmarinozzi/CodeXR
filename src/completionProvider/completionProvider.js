@@ -78,13 +78,18 @@ function getMainBlock(cursorBlocks, prefixBlocks) {
  */
 async function completionProvider() {
 	const document = getDocument();
-	if (!document) return;
+	if (!document || document.getText() === '') return;
 
 	statusBar.text = '$(loading~spin)';
 	statusBar.update();
 
+	// Get the parts of the document
 	const [prefix, cursor, suffix] = getPromptParts(document);
+
+	// Get the document language
 	const language = languages[document.languageId.toLowerCase()];
+
+	// Parse the blocks in the prefix, cursor, and suffix
 	const prefixBlocks = parser(prefix, language).getBlocks();
 	const cursorBlocks = parser(cursor, language).getBlocks();
 	const suffixBlocks = parser(suffix, language).getBlocks();
@@ -92,19 +97,25 @@ async function completionProvider() {
 	const mainBlock = getMainBlock(cursorBlocks, prefixBlocks);
 
 	if (!mainBlock || mainBlock.isClosed) {
+		// If there arent any blocks in the code or the main block is closed
 		const completionParams = new Parameters({
 			singleLine: true,
 			engine: 'code-cushman-001',
 			samples: 3,
 			context: [prefix, suffix],
-			prompt: prefix
+			prompt: prefix,
+			language: language.id
 		});
 
 		const completion = await query(completionParams);
 
 		statusBar.reset();
 
-		return completion.completion;
+		if (completion?.timedout) {
+			return;
+		}
+
+		return completion?.completion;
 	}
 
 	let completionParams = blocksToParameters(mainBlock);
@@ -113,42 +124,44 @@ async function completionProvider() {
 	completionParams.context = [prefixBlocks, suffixBlocks];
 	completionParams.update();
 
-	console.log(completionParams);
-
+	// Generate a single line completion
 	const singlelineCompletion = await query(completionParams);
-	console.log(singlelineCompletion);
 
+	// If the main block isn't opened, generate a single line to open the block
+	// example: function fibona -> cci() {
 	if (!mainBlock.isOpened && singlelineCompletion?.completion) {
 		statusBar.reset();
 
-		return singlelineCompletion.completion;
+		return singlelineCompletion?.completion;
 	}
+
+	// At this point we have a main block, it's open, and we have a single line completion
+	// example: function fibonacci() { -> \n ... }
 
 	completionParams = blocksToParameters(mainBlock); // Reset the stops
 
+	// Allocate 3.5 seconds for a multi line completion
 	completionParams.context = [prefixBlocks, suffixBlocks];
 	completionParams.singleLine = false;
 	completionParams.timeout = 3.5;
 	completionParams.update();
 
 	const multiLineCompletion = await query(completionParams);
-	console.log(multiLineCompletion);
-
-	if (!multiLineCompletion?.completion || !singlelineCompletion?.completion) {
-		statusBar.reset();
-
-		return;
-	}
-
-	if (multiLineCompletion.timedout && !singlelineCompletion.timedout) {
-		statusBar.reset();
-
-		return singlelineCompletion.completion;
-	}
 
 	statusBar.reset();
 
-	return multiLineCompletion.completion;
+	// If both of the requests timed out we return
+	if (!multiLineCompletion?.completion || !singlelineCompletion?.completion) {
+		return;
+	}
+
+	// If onlt the multi line completion timed out return the single line completion
+	if (multiLineCompletion?.timedout && !singlelineCompletion?.timedout) {
+		return singlelineCompletion?.completion;
+	}
+
+	// If none of the completions timed out return the multi line completion
+	return multiLineCompletion?.completion;
 }
 
 module.exports = completionProvider;

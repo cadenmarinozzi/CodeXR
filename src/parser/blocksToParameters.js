@@ -53,9 +53,9 @@ function getEngine(block) {
  * @param {block} block - the block to get the stops for
  * @returns {array} - an array of stops
  */
-function getStops(block) {
-	return block.isOpened ? [block.language.brackets.close] : ['\n\n\n'];
-}
+// function getStops(block) {
+// 	return block.isOpened ? [block.language.brackets.close] : ['\n\n\n'];
+// }
 
 /**
  * @param {block} block - The block being passed in.
