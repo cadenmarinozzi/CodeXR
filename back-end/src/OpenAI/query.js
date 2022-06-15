@@ -127,10 +127,10 @@ async function query(parameters) {
 	// web.updateLastRequestTime(parameters.user);
 
 	// Increment the user's request count
-	// web.incrementUserRequests(parameters.user);
+	web.incrementUserRequests(parameters.user);
 
 	// Increment the user's token count
-	// web.incrementUserTokens(parameters.user, numTokens);
+	web.incrementUserTokens(parameters.user, numTokens);
 
 	return {
 		completion: response?.data?.choices?.[0]?.text,

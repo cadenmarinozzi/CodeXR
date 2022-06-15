@@ -50,7 +50,6 @@ app.post('/query', async (req, res) => {
 
 		res.status(statusCodes.OK).json(completion);
 	} catch (err) {
-		web.incrementStatusData();
 		console.error(`INTERNAL_SERVER_ERROR: ${err.toString()}`);
 
 		res.status(statusCodes.INTERNAL_SERVER_ERROR).end(
