@@ -24,7 +24,7 @@ class DownloadPage extends React.Component {
 				</Gradient>
 
 				<div className="download-container">
-					<Button href="https://github.com/nekumelon/CodeXR">
+					<Button href="https://github.com/cadenmarinozzi/CodeXR">
 						GitHub
 					</Button>
 
