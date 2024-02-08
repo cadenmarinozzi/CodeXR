@@ -5,14 +5,14 @@
   "version": "1.0.3",
   "license": "MIT",
   "preview": true,
-  "homepage": "https://github.com/nekumelon/CodeXR#readme",
+  "homepage": "https://github.com/cadenmarinozzi/CodeXR#readme",
   "icon": "assets/CodeXRLogo.png",
   "author": "nekumelon",
   "publisher": "nekumelon",
   "main": "./src/extension.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nekumelon/CodeXR"
+    "url": "https://github.com/cadenmarinozzi/CodeXR"
   },
   "keywords": [
     "CodeXR",
@@ -95,7 +95,7 @@
     "uuid": "^8.3.2"
   },
   "bugs": {
-    "url": "https://github.com/nekumelon/CodeXR/issues",
+    "url": "https://github.com/cadenmarinozzi/CodeXR/issues",
     "email": "nekumelon@gmail.com"
   }
 }
