@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nekumelon/CodeXR"
+    "url": "https://github.com/cadenmarinozzi/CodeXR"
   },
   "scripts": {
     "start": "node src/index.js",
