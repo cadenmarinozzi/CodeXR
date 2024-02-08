@@ -22,7 +22,7 @@ function getRequestIP(req) {
 }
 
 app.get('/', (req, res) => {
-	res.status(200).end('https://github.com/nekumelon/CodeXR');
+	res.status(200).end('https://github.com/cadenmarinozzi/CodeXR');
 });
 
 app.post('/query', async (req, res) => {
