@@ -86,13 +86,13 @@ glob('../../**/deploy-config.json', (err, files) => {
 async function deploymentLoop() {
 	try {
 		const commits = await axios.get(
-			'https://api.github.com/repos/nekumelon/CodeXR/commits'
+			'https://api.github.com/repos/cadenmarinozzi/CodeXR/commits'
 		);
 		const sha = commits.data[0].sha;
 
 		if (lastSha && sha !== lastSha) {
 			const commit = await axios.get(
-				`https://api.github.com/repos/nekumelon/CodeXR/commits/${sha}`
+				`https://api.github.com/repos/cadenmarinozzi/CodeXR/commits/${sha}`
 			);
 
 			glob('../../**/deploy-config.json', (err, files) => {
